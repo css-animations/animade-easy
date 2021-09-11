@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { DevToolContext, DevToolProvider } from "./DevToolContext";
 import logo from "./logo.svg";
+import AnimatedProperties from "./components/AnimatedProperties";
 import "./App.css";
 import { devtools } from "webextension-polyfill";
 async function getCurrentTab() {
@@ -18,6 +19,8 @@ export default function AppWrapper() {
 function AppContent() {
   const { injectCSS, resetCSS, queryElement, attachDebugger } =
     useContext(DevToolContext);
+
+  const [headContent, setHeadContent] = useState("");
   const [classInput, setClassInput] = useState("");
   return (
     <div className="App">
@@ -46,6 +49,7 @@ function AppContent() {
           Inspect Query Selector!
         </button>
         <button onClick={() => attachDebugger()}>Attach a debugger!</button>
+        <AnimatedProperties />
       </header>
     </div>
   );

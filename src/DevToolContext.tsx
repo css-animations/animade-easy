@@ -175,7 +175,7 @@ export function DevToolProvider(props: DevToolProps) {
         transform: rotate(360deg);
       }
     }
-    .${chosenClass} {
+    ${chosenClass} {
       animation: spinny infinite 20s linear;
     }
     `;
