@@ -24,7 +24,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "start:chrome": "web-ext run -t chromium",
-    "start:firefox": "web-ext run"
+    "start:firefox": "web-ext run",
+    "restart": "yarn build && yarn start:chrome"
   },
   "eslintConfig": {
     "extends": [
