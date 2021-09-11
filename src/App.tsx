@@ -1,8 +1,18 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import "./App.css";
 
 function App() {
+  function injectCSS() {
+    const head = window.document.getElementsByTagName("HEAD")[0];
+    const newStyle = document.createElement("style");
+    newStyle.innerHTML = `
+    .App-link {
+      animation: App-logo-spin infinite 20s linear;
+    }
+    `;
+    head.appendChild(newStyle);
+  }
   return (
     <div className="App">
       <header className="App-header">
@@ -18,6 +28,7 @@ function App() {
         >
           Learn React
         </a>
+        <button onClick={() => injectCSS()}>Move the Text</button>
       </header>
     </div>
   );
