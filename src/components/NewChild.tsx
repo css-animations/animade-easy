@@ -9,11 +9,58 @@ interface NewChildProps {
   setChildren: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
+const animatableProperties = [
+  "border-width",
+  "font-size",
+  "font-weight",
+  "grid-column-gap",
+  "grid-gap",
+  "grid-row-gap",
+  "height",
+  "left",
+  "letter-spacing",
+  "line-height",
+  "margin",
+  "margin-bottom",
+  "margin-left",
+  "margin-right",
+  "margin-top",
+  "max-height",
+  "max-width",
+  "min-height",
+  "min-width",
+  "opacity",
+  "padding",
+  "padding-bottom",
+  "padding-left",
+  "padding-right",
+  "padding-top",
+  "right",
+  "rotate",
+  "row-gap",
+  "scale",
+  "top",
+  "width",
+  "word-spacing",
+  "z-index",
+];
+
 function NewChild(props: NewChildProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
 
-  const selections = ["one", "two", "three"];
+  let selections: string[] = [];
+
+  switch (props.type) {
+    case "property":
+      selections = animatableProperties;
+      break;
+    case "animation option":
+      selections = ["ease", "blah"];
+      break;
+    default:
+      selections = [];
+  }
 
   const handleClick = () => {
     setOpen(true);
