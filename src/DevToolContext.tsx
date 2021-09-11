@@ -5,6 +5,24 @@ async function getCurrentTab() {
   let [tab] = await chrome.tabs.query(queryOptions);
   return tab;
 }
+
+const importantAttributesHash: any = {
+  class: true,
+  id: true,
+};
+
+interface propertyType {
+  name: string;
+  value: string;
+}
+
+// function addClickListener() {
+//   const listener = document.addEventListener("click", (event) => {
+//     alert("X pos is: " + event.clientX);
+//     alert("Y pos is: " + event.clientY);
+//   });
+// }
+
 const defaultHighlightConfig = {
   showInfo: true,
   showRulers: true,
@@ -20,7 +38,8 @@ interface DevToolContextType {
   injectCSS: (chosenClass: string) => void;
   resetCSS: () => void;
   queryElement: (chosenSelector: string) => void;
-  attachDebugger: () => void;
+  attachInspect: () => void;
+  detachInspect: () => void;
   highlightElement: (chosenSelector: string) => void;
 }
 
@@ -29,7 +48,8 @@ const defaultDevContext: DevToolContextType = {
   injectCSS: (chosenSelector: string) => {},
   resetCSS: () => {},
   queryElement: (chosenSelector: string) => {},
-  attachDebugger: () => {},
+  attachInspect: () => {},
+  detachInspect: () => {},
   highlightElement: () => {},
 };
 
@@ -45,7 +65,6 @@ export function DevToolProvider(props: DevToolProps) {
   >([]);
 
   //when component mounts, attach debugger to current tab
-
   useEffect(() => {
     async function debugAttach() {
       await attachDebugger();
@@ -54,6 +73,7 @@ export function DevToolProvider(props: DevToolProps) {
     //chrome.debugger.attach
   }, []);
 
+  //function to attach debugger to current tab
   async function attachDebugger() {
     const tab = await getCurrentTab();
     if (tab || tab === 0) {
@@ -62,18 +82,55 @@ export function DevToolProvider(props: DevToolProps) {
       };
       chrome.debugger.attach(debugee, "1.3");
       console.log("Attached!");
-      chrome.debugger.onEvent.addListener((source, method, params) => {
+      chrome.debugger.onEvent.addListener((source, method, params: any) => {
         //alert(source);
-        //alert(method);
+        console.log(method);
+        //console.log the styles as necessary
+        if (method === "Overlay.inspectNodeRequested") {
+          //alert(params);
+          console.log(params);
+          const backendId = params.backendNodeId;
+          chrome.debugger.sendCommand(
+            debugee,
+            "DOM.describeNode",
+            {
+              backendNodeId: backendId,
+            },
+            (res: any) => {
+              console.log(res);
+              const node: devtoolsProtocol.Protocol.DOM.Node = res.node;
+              const attributes = node.attributes;
+              if (!attributes) return;
+              const properties: propertyType[] = [];
+              for (let i = 0; i < attributes.length - 1; i++) {
+                const deets = attributes[i];
+                if (importantAttributesHash[deets]) {
+                  properties.push({
+                    name: deets,
+                    value: attributes[i + 1],
+                  });
+                  i++;
+                }
+              }
+              console.log(properties);
+              for (const property of properties) {
+                if (property.name === "class") {
+                  const classes = property.value.split(" ");
+                  for (const currClass of classes) {
+                    injectCSS(currClass);
+                  }
+                }
+              }
+            }
+          );
+        }
         //alert(params);
       });
+      //enable debugging manipulation
       chrome.debugger.sendCommand(debugee, "DOM.enable");
       chrome.debugger.sendCommand(debugee, "CSS.enable");
       chrome.debugger.sendCommand(debugee, "Overlay.enable");
-      chrome.debugger.sendCommand(debugee, "Overlay.setInspectMode", {
-        mode: "searchForNode",
-        highlightConfig: defaultHighlightConfig,
-      });
+      await setupClick();
     } else alert("Invalid tab ID!");
   }
 
@@ -139,6 +196,7 @@ export function DevToolProvider(props: DevToolProps) {
     );
   }
 
+  //highlight the last instance of a selector
   async function highlightElement(chosenSelector: string) {
     const tab = await getCurrentTab();
     if (!tab.id && tab.id !== 0) return;
@@ -211,7 +269,7 @@ export function DevToolProvider(props: DevToolProps) {
         transform: rotate(360deg);
       }
     }
-    ${chosenClass} {
+    .${chosenClass} {
       animation: spinny infinite 20s linear;
     }
     `;
@@ -246,6 +304,35 @@ export function DevToolProvider(props: DevToolProps) {
     }
   }
 
+  //attach inspect mode
+  async function attachInspect() {
+    const tab = await getCurrentTab();
+
+    if (!tab && tab !== 0) return;
+    const debugee = {
+      tabId: tab.id,
+    };
+
+    chrome.debugger.sendCommand(debugee, "Overlay.setInspectMode", {
+      mode: "searchForNode",
+      highlightConfig: defaultHighlightConfig,
+    });
+  }
+
+  //exit inspect mode
+  async function detachInspect() {
+    const tab = await getCurrentTab();
+
+    if (!tab && tab !== 0) return;
+    const debugee = {
+      tabId: tab.id,
+    };
+
+    chrome.debugger.sendCommand(debugee, "Overlay.setInspectMode", {
+      mode: "none",
+    });
+  }
+
   return (
     <DevToolContext.Provider
       value={{
@@ -253,7 +340,8 @@ export function DevToolProvider(props: DevToolProps) {
         injectCSS,
         resetCSS,
         queryElement,
-        attachDebugger,
+        attachInspect,
+        detachInspect,
         highlightElement,
       }}
     >

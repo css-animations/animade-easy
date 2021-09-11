@@ -21,7 +21,8 @@ function AppContent() {
     injectCSS,
     resetCSS,
     queryElement,
-    attachDebugger,
+    attachInspect,
+    detachInspect,
     highlightElement,
   } = useContext(DevToolContext);
 
@@ -47,7 +48,6 @@ function AppContent() {
           placeholder="Choose a Query Selector"
           onChange={(event) => setElementInput(event.target.value)}
         />
-        <button onClick={() => injectCSS(elementInput)}>Move the Text</button>
         <button onClick={() => resetCSS()}>Reset the CSS</button>
         <button onClick={() => queryElement(elementInput)}>
           Inspect Query Selector!
@@ -55,7 +55,10 @@ function AppContent() {
         <button onClick={() => highlightElement(elementInput)}>
           Highlight Query Selector!
         </button>
-        <button onClick={() => attachDebugger()}>Attach a debugger!</button>
+        <button onClick={() => attachInspect()}>Inspect a class!</button>
+        <button onClick={() => detachInspect()}>
+          Stop inspecting a class!
+        </button>
         <AnimatedProperties />
       </header>
     </div>
