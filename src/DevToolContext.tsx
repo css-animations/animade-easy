@@ -9,15 +9,15 @@ interface DevToolContextType {
   injectedStyles: chrome.scripting.CSSInjection[];
   injectCSS: (chosenClass: string) => void;
   resetCSS: () => void;
-  queryClassElement: (chosenClass: string) => void;
+  queryElement: (chosenSelector: string) => void;
   attachDebugger: () => void;
 }
 
 const defaultDevContext: DevToolContextType = {
   injectedStyles: [],
-  injectCSS: (chosenClass: string) => {},
+  injectCSS: (chosenSelector: string) => {},
   resetCSS: () => {},
-  queryClassElement: (chosenClass: string) => {},
+  queryElement: (chosenSelector: string) => {},
   attachDebugger: () => {},
 };
 
@@ -71,10 +71,12 @@ export function DevToolProvider(props: DevToolProps) {
         alert(method);
         alert(params);
       });
+      chrome.debugger.sendCommand(debugee, "DOM.enable");
+      chrome.debugger.sendCommand(debugee, "CSS.enable");
     } else alert("Invalid tab ID!");
   }
 
-  async function queryClassElement(chosenClass: string) {
+  async function queryElement(chosenSelector: string) {
     //attempt 2 with document
     const tab = await getCurrentTab();
 
@@ -82,6 +84,8 @@ export function DevToolProvider(props: DevToolProps) {
     const debugee = {
       tabId: tab.id,
     };
+    // chrome.debugger.sendCommand(debugee, "DOM.enable");
+    // chrome.debugger.sendCommand(debugee, "CSS.enable");
     chrome.debugger.sendCommand(debugee, "DOM.enable");
     chrome.debugger.sendCommand(debugee, "CSS.enable");
 
@@ -100,7 +104,7 @@ export function DevToolProvider(props: DevToolProps) {
           "DOM.querySelector",
           {
             nodeId: nodeId,
-            selector: `.${chosenClass}`,
+            selector: chosenSelector,
           },
           (res: any) => {
             console.log(res);
@@ -128,6 +132,33 @@ export function DevToolProvider(props: DevToolProps) {
         );
       }
     );
+  }
+
+  async function highlightElement(chosenClass: string) {
+    const tab = await getCurrentTab();
+    if (!tab.id && tab.id !== 0) return;
+    const debugee = {
+      tabId: tab.id,
+    };
+    chrome.debugger.sendCommand(debugee, "DOM.enable");
+    chrome.debugger.sendCommand(debugee, "CSS.enable");
+
+    chrome.debugger.sendCommand(
+      debugee,
+      "DOM.getDocument",
+      {
+        depth: 1,
+      },
+      (res: any) => {
+        console.log(res);
+        const root = res.root;
+        const nodeId = root.nodeId;
+        console.log("DOM Node is: " + nodeId);
+        //chrome.debugger.sendCommand(debugee, "DOM.querySelectorAll", {});
+      }
+    );
+
+    let classes = [];
   }
 
   //function to injectCSS
@@ -185,7 +216,7 @@ export function DevToolProvider(props: DevToolProps) {
         injectedStyles,
         injectCSS,
         resetCSS,
-        queryClassElement,
+        queryElement,
         attachDebugger,
       }}
     >

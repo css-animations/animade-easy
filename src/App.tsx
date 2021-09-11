@@ -16,7 +16,7 @@ export default function AppWrapper() {
   );
 }
 function AppContent() {
-  const { injectCSS, resetCSS, queryClassElement, attachDebugger } =
+  const { injectCSS, resetCSS, queryElement, attachDebugger } =
     useContext(DevToolContext);
   const [classInput, setClassInput] = useState("");
   return (
@@ -37,14 +37,13 @@ function AppContent() {
         <input
           type="text"
           value={classInput}
-          placeholder="Choose a CSS Class"
+          placeholder="Choose a Query Selector"
           onChange={(event) => setClassInput(event.target.value)}
         />
         <button onClick={() => injectCSS(classInput)}>Move the Text</button>
         <button onClick={() => resetCSS()}>Reset the CSS</button>
-        <div className="test-class">Boop Dee Boop</div>
-        <button onClick={() => queryClassElement(classInput)}>
-          Inspect class element!
+        <button onClick={() => queryElement(classInput)}>
+          Inspect Query Selector!
         </button>
         <button onClick={() => attachDebugger()}>Attach a debugger!</button>
       </header>
