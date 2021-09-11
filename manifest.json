@@ -5,7 +5,7 @@
   "version": "1.0",
   "author": "Christophe Villeneuve",
   "homepage_url": "https://github.com/mdn/webextensions-examples/tree/master/devtools-panels",
-  "permissions": ["<all_urls>", "scripting"],
+  "permissions": ["<all_urls>", "scripting", "debugger"],
   "devtools_page": "devtools/devtools-page.html",
   "host_permissions": [
     "*://*/*",

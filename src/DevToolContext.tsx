@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 async function getCurrentTab() {
   let queryOptions = { active: true, currentWindow: true };
   let [tab] = await chrome.tabs.query(queryOptions);
@@ -9,12 +9,16 @@ interface DevToolContextType {
   injectedStyles: chrome.scripting.CSSInjection[];
   injectCSS: (chosenClass: string) => void;
   resetCSS: () => void;
+  queryClassElement: (chosenClass: string) => void;
+  attachDebugger: () => void;
 }
 
 const defaultDevContext: DevToolContextType = {
   injectedStyles: [],
   injectCSS: (chosenClass: string) => {},
   resetCSS: () => {},
+  queryClassElement: (chosenClass: string) => {},
+  attachDebugger: () => {},
 };
 
 export const DevToolContext = React.createContext(defaultDevContext);
@@ -24,10 +28,118 @@ interface DevToolProps {
 }
 
 export function DevToolProvider(props: DevToolProps) {
-  const [headContent, setHeadContent] = useState("");
   const [injectedStyles, setInjectedStyles] = useState<
     chrome.scripting.CSSInjection[]
   >([]);
+
+  //when component mounts, attach debugger to current tab
+
+  useEffect(() => {
+    async function debugAttach() {
+      const tab = await getCurrentTab();
+      //attach debugger if valid tab
+      if (tab.id || tab.id === 0) {
+        const debugee = {
+          tabId: tab.id,
+        };
+        chrome.debugger.attach(debugee, "1.3");
+        console.log("Attached!");
+        chrome.debugger.onEvent.addListener((source, method, params) => {
+          //alert(source);
+          //alert(method);
+          //alert(params);
+          console.log("Received message!");
+          //console.log(source);
+          console.log(params);
+        });
+      } else alert("Invalid tab ID!");
+    }
+    debugAttach();
+    //chrome.debugger.attach
+  }, []);
+
+  async function attachDebugger() {
+    const tab = await getCurrentTab();
+    if (tab || tab === 0) {
+      const debugee = {
+        tabId: tab.id,
+      };
+      chrome.debugger.attach(debugee, "1.3");
+      console.log("Attached!");
+      chrome.debugger.onEvent.addListener((source, method, params) => {
+        alert(source);
+        alert(method);
+        alert(params);
+      });
+    } else alert("Invalid tab ID!");
+  }
+
+  async function queryClassElement(chosenClass: string) {
+    //attempt 2 with document
+    const tab = await getCurrentTab();
+    if (!tab && tab !== 0) return;
+    chrome.debugger.sendCommand(
+      {
+        tabId: tab.id,
+      },
+      "DOM.enable"
+    );
+    chrome.debugger.sendCommand(
+      {
+        tabId: tab.id,
+      },
+      "CSS.enable"
+    );
+    chrome.debugger.sendCommand(
+      {
+        tabId: tab.id,
+      },
+      "Runtime.evaluate",
+      {
+        expression: `document.getElementsByClassName("${chosenClass}")[0]`,
+      },
+      (res: any) => {
+        console.log(res);
+        const objId = res.result.objectId;
+        console.log("object is: " + objId);
+        chrome.debugger.sendCommand(
+          {
+            tabId: tab.id,
+          },
+          "DOM.requestNode",
+          {
+            objectId: objId,
+          },
+          (res: any) => {
+            console.log(res);
+            const nodeId: number = res.nodeId;
+            console.log("Node ID is: " + nodeId);
+            chrome.debugger.sendCommand(
+              {
+                tabId: tab.id,
+              },
+              "CSS.getMatchedStylesForNode",
+              {
+                nodeId: nodeId,
+              },
+              (res: any) => {
+                const inline = res.inlineStyle;
+                const attributes = res.attributesStyle;
+                const matched = res.matchedCSSRules;
+                const inherited = res.inherited;
+                console.log(inline);
+                console.log(attributes);
+                console.log(matched);
+                console.log(inherited);
+              }
+            );
+          }
+        );
+      }
+    );
+  }
+
+  //function to injectCSS
   async function injectCSS(chosenClass: string) {
     //const head = window.document.getElementsByTagName("HEAD")[0];
     //const newStyle = document.createElement("style");
@@ -82,6 +194,8 @@ export function DevToolProvider(props: DevToolProps) {
         injectedStyles,
         injectCSS,
         resetCSS,
+        queryClassElement,
+        attachDebugger,
       }}
     >
       {props.children}

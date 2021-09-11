@@ -3,7 +3,6 @@ import { DevToolContext, DevToolProvider } from "./DevToolContext";
 import logo from "./logo.svg";
 import "./App.css";
 import { devtools } from "webextension-polyfill";
-
 async function getCurrentTab() {
   let queryOptions = { active: true, currentWindow: true };
   let [tab] = await chrome.tabs.query(queryOptions);
@@ -17,7 +16,8 @@ export default function AppWrapper() {
   );
 }
 function AppContent() {
-  const { injectCSS, injectedStyles, resetCSS } = useContext(DevToolContext);
+  const { injectCSS, resetCSS, queryClassElement, attachDebugger } =
+    useContext(DevToolContext);
   const [classInput, setClassInput] = useState("");
   return (
     <div className="App">
@@ -43,6 +43,10 @@ function AppContent() {
         <button onClick={() => injectCSS(classInput)}>Move the Text</button>
         <button onClick={() => resetCSS()}>Reset the CSS</button>
         <div className="test-class">Boop Dee Boop</div>
+        <button onClick={() => queryClassElement(classInput)}>
+          Inspect class element!
+        </button>
+        <button onClick={() => attachDebugger()}>Attach a debugger!</button>
       </header>
     </div>
   );
