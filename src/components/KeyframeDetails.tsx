@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import NumOption from "./NumOption";
 
 function KeyframeDetails() {
-  const [time, setTime] = useState(10);
-  const [propertyValue, setPropertyValue] = useState(12);
-  const [tension, setTension] = useState(50);
+  //   const [time, setTime] = useState(10);
+  //   const [propertyValue, setPropertyValue] = useState(12);
+  //   const [tension, setTension] = useState(50);
 
   return (
     <div>

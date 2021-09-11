@@ -104,13 +104,10 @@ function NewChild(props: NewChildProps) {
 
   return (
     <div>
-      <span>
-        {" "}
-        <IconButton aria-label="Add new property" onClick={handleClick}>
-          <AddIcon />
-        </IconButton>
-        Add new {props.type}
-      </span>
+      <IconButton aria-label="Add new property" onClick={handleClick}>
+        <AddIcon />
+      </IconButton>
+      Add new {props.type}
       <Modal open={open} onClose={handleClose}>
         {body}
       </Modal>
