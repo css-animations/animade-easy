@@ -195,11 +195,10 @@ export function setCurvePointByIndex(
         prevCurve.map((prevPoint, ind) => {
           if (ind === heldIndex.index) {
             const { ctrlPt2R: drivenPoint } = GetRelativeBezierPoint(prevPoint);
-            const relCurrentPt = GetRelativePoint(prevPoint.ctrlPt1A, newPoint);
+            const relCurrentPt = GetRelativePoint(prevPoint.pt, newPoint);
             const newPointUnitVector = unitVector(vec(relCurrentPt));
             const drivenPointMag = magnitude(vec(drivenPoint));
             const newDrivenPoint = pt(vecMul(neg(newPointUnitVector), drivenPointMag));
-            console.log({drivenPtAbs: GetAbsolutePoint(prevPoint.pt, newDrivenPoint), dotPt: prevPoint.pt})
             return {
               pt: prevPoint.pt,
               ctrlPt1A: newPoint,
@@ -213,10 +212,15 @@ export function setCurvePointByIndex(
       setCurve((prevCurve) =>
         prevCurve.map((prevPoint, ind) => {
           if (ind === heldIndex.index) {
+            const { ctrlPt1R: drivenPoint } = GetRelativeBezierPoint(prevPoint);
+            const relCurrentPt = GetRelativePoint(prevPoint.pt, newPoint);
+            const newPointUnitVector = unitVector(vec(relCurrentPt));
+            const drivenPointMag = magnitude(vec(drivenPoint));
+            const newDrivenPoint = pt(vecMul(neg(newPointUnitVector), drivenPointMag));
             return {
               pt: prevPoint.pt,
               ctrlPt2A: newPoint,
-              ctrlPt1A: prevPoint.ctrlPt1A,
+              ctrlPt1A: GetAbsolutePoint(prevPoint.pt, newDrivenPoint),
             };
           } else return prevPoint;
         }),
