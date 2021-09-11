@@ -130,7 +130,7 @@ export function DevToolProvider(props: DevToolProps) {
       chrome.debugger.sendCommand(debugee, "DOM.enable");
       chrome.debugger.sendCommand(debugee, "CSS.enable");
       chrome.debugger.sendCommand(debugee, "Overlay.enable");
-      await setupClick();
+      //await setupClick();
     } else alert("Invalid tab ID!");
   }
 
