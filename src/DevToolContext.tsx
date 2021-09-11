@@ -16,13 +16,6 @@ interface propertyType {
   value: string;
 }
 
-// function addClickListener() {
-//   const listener = document.addEventListener("click", (event) => {
-//     alert("X pos is: " + event.clientX);
-//     alert("Y pos is: " + event.clientY);
-//   });
-// }
-
 const defaultHighlightConfig = {
   showInfo: true,
   showRulers: true,
@@ -64,14 +57,75 @@ export function DevToolProvider(props: DevToolProps) {
     chrome.scripting.CSSInjection[]
   >([]);
 
+  //function that listens
+  async function debugListener(source: any, method: any, params: any) {
+    const tab = await getCurrentTab();
+    if (!tab && tab !== 0) return;
+    const debugee = {
+      tabId: tab.id,
+    };
+    //alert(source);
+    console.log(method);
+    //console.log the styles as necessary
+    if (method === "Overlay.inspectNodeRequested") {
+      //alert(params);
+      console.log(params);
+      const backendId = params.backendNodeId;
+      chrome.debugger.sendCommand(
+        debugee,
+        "DOM.describeNode",
+        {
+          backendNodeId: backendId,
+        },
+        (res: any) => {
+          console.log(res);
+          const node: devtoolsProtocol.Protocol.DOM.Node = res.node;
+          const attributes = node.attributes;
+          if (!attributes) return;
+          const properties: propertyType[] = [];
+          for (let i = 0; i < attributes.length - 1; i++) {
+            const deets = attributes[i];
+            if (importantAttributesHash[deets]) {
+              properties.push({
+                name: deets,
+                value: attributes[i + 1],
+              });
+              i++;
+            }
+          }
+          console.log(properties);
+          for (const property of properties) {
+            if (property.name === "class") {
+              const classes = property.value.split(" ");
+              for (const currClass of classes) {
+                injectCSS(currClass);
+              }
+            }
+          }
+        }
+      );
+    }
+    //alert(params);
+  }
   //when component mounts, attach debugger to current tab
   useEffect(() => {
     async function debugAttach() {
       await attachDebugger();
+      chrome.tabs.onActivated.addListener(async (activeInfo) => {
+        //detach with current active info
+        chrome.debugger.onEvent.removeListener(debugListener);
+        //await resetCSS();
+        chrome.debugger.detach({
+          tabId: activeInfo.tabId,
+        });
+        attachDebugger();
+        console.log("Tab changed!");
+      });
     }
     debugAttach();
-    //chrome.debugger.attach
   }, []);
+
+  //write unmount code
 
   //function to attach debugger to current tab
   async function attachDebugger() {
@@ -82,55 +136,11 @@ export function DevToolProvider(props: DevToolProps) {
       };
       chrome.debugger.attach(debugee, "1.3");
       console.log("Attached!");
-      chrome.debugger.onEvent.addListener((source, method, params: any) => {
-        //alert(source);
-        console.log(method);
-        //console.log the styles as necessary
-        if (method === "Overlay.inspectNodeRequested") {
-          //alert(params);
-          console.log(params);
-          const backendId = params.backendNodeId;
-          chrome.debugger.sendCommand(
-            debugee,
-            "DOM.describeNode",
-            {
-              backendNodeId: backendId,
-            },
-            (res: any) => {
-              console.log(res);
-              const node: devtoolsProtocol.Protocol.DOM.Node = res.node;
-              const attributes = node.attributes;
-              if (!attributes) return;
-              const properties: propertyType[] = [];
-              for (let i = 0; i < attributes.length - 1; i++) {
-                const deets = attributes[i];
-                if (importantAttributesHash[deets]) {
-                  properties.push({
-                    name: deets,
-                    value: attributes[i + 1],
-                  });
-                  i++;
-                }
-              }
-              console.log(properties);
-              for (const property of properties) {
-                if (property.name === "class") {
-                  const classes = property.value.split(" ");
-                  for (const currClass of classes) {
-                    injectCSS(currClass);
-                  }
-                }
-              }
-            }
-          );
-        }
-        //alert(params);
-      });
+      chrome.debugger.onEvent.addListener(debugListener);
       //enable debugging manipulation
       chrome.debugger.sendCommand(debugee, "DOM.enable");
       chrome.debugger.sendCommand(debugee, "CSS.enable");
       chrome.debugger.sendCommand(debugee, "Overlay.enable");
-      await setupClick();
     } else alert("Invalid tab ID!");
   }
 
@@ -282,7 +292,7 @@ export function DevToolProvider(props: DevToolProps) {
         };
         chrome.scripting.insertCSS(newInjection, () => {
           setInjectedStyles((prevStyles) => [...prevStyles, newInjection]);
-          alert("Sucessfully inserted CSS!");
+          //alert("Sucessfully inserted CSS!");
         });
       } catch (error) {
         alert(error);
@@ -330,6 +340,9 @@ export function DevToolProvider(props: DevToolProps) {
 
     chrome.debugger.sendCommand(debugee, "Overlay.setInspectMode", {
       mode: "none",
+      highlightConfig: {
+        showInfo: false,
+      },
     });
   }
 
