@@ -28,7 +28,7 @@ const defaultHighlightConfig = {
 };
 interface DevToolContextType {
   injectedStyles: chrome.scripting.CSSInjection[];
-  injectCSS: (chosenClass: string) => void;
+  injectCSS: (chosenSelector: string) => void;
   resetCSS: () => void;
   queryElement: (chosenSelector: string) => void;
   attachInspect: () => void;
@@ -97,9 +97,13 @@ export function DevToolProvider(props: DevToolProps) {
           for (const property of properties) {
             if (property.name === "class") {
               const classes = property.value.split(" ");
+              //get list of classes of DOM node
               for (const currClass of classes) {
-                injectCSS(currClass);
-              }
+                injectCSS("." + currClass);
+              } //inject for the id if it's not a class
+            } else if (property.name === "id") {
+              const currId = property.value;
+              injectCSS("#" + currId);
             }
           }
         }
@@ -266,7 +270,7 @@ export function DevToolProvider(props: DevToolProps) {
   }
 
   //function to injectCSS
-  async function injectCSS(chosenClass: string) {
+  async function injectCSS(chosenSelector: string) {
     //const head = window.document.getElementsByTagName("HEAD")[0];
     //const newStyle = document.createElement("style");
     const tab = await getCurrentTab();
@@ -279,7 +283,7 @@ export function DevToolProvider(props: DevToolProps) {
         transform: rotate(360deg);
       }
     }
-    .${chosenClass} {
+    ${chosenSelector} {
       animation: spinny infinite 20s linear;
     }
     `;
