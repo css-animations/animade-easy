@@ -77,47 +77,38 @@ export function DevToolProvider(props: DevToolProps) {
   async function queryClassElement(chosenClass: string) {
     //attempt 2 with document
     const tab = await getCurrentTab();
+
     if (!tab && tab !== 0) return;
+    const debugee = {
+      tabId: tab.id,
+    };
+    chrome.debugger.sendCommand(debugee, "DOM.enable");
+    chrome.debugger.sendCommand(debugee, "CSS.enable");
+
     chrome.debugger.sendCommand(
+      debugee,
+      "DOM.getDocument",
       {
-        tabId: tab.id,
-      },
-      "DOM.enable"
-    );
-    chrome.debugger.sendCommand(
-      {
-        tabId: tab.id,
-      },
-      "CSS.enable"
-    );
-    chrome.debugger.sendCommand(
-      {
-        tabId: tab.id,
-      },
-      "Runtime.evaluate",
-      {
-        expression: `document.getElementsByClassName("${chosenClass}")[0]`,
+        depth: 1,
       },
       (res: any) => {
         console.log(res);
-        const objId = res.result.objectId;
-        console.log("object is: " + objId);
+        const root = res.root;
+        const nodeId = root.nodeId;
         chrome.debugger.sendCommand(
+          debugee,
+          "DOM.querySelector",
           {
-            tabId: tab.id,
-          },
-          "DOM.requestNode",
-          {
-            objectId: objId,
+            nodeId: nodeId,
+            selector: `.${chosenClass}`,
           },
           (res: any) => {
             console.log(res);
-            const nodeId: number = res.nodeId;
-            console.log("Node ID is: " + nodeId);
+            const nodeId = res.nodeId;
+
+            console.log("Res ID is: " + nodeId);
             chrome.debugger.sendCommand(
-              {
-                tabId: tab.id,
-              },
+              debugee,
               "CSS.getMatchedStylesForNode",
               {
                 nodeId: nodeId,
