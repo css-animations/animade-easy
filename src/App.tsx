@@ -32,6 +32,9 @@ async function getCurrentTab() {
 function App() {
   const [headContent, setHeadContent] = useState("");
   const [classInput, setClassInput] = useState("");
+  const [injectedStyles, setInjectedStyles] = useState<
+    chrome.scripting.CSSInjection[]
+  >([]);
 
   //grab initial head content onMount
   useEffect(() => {
@@ -82,24 +85,33 @@ function App() {
     //alert("tab is: " + tab.id);
     if (tab.id || tab.id === 0) {
       try {
-        chrome.scripting.insertCSS(
-          {
-            target: { tabId: tab.id },
-            css: newCSS,
-          },
-          () => {
-            alert("Sucessfully inserted CSS!");
-          }
-        );
+        const newInjection: chrome.scripting.CSSInjection = {
+          target: { tabId: tab.id },
+          css: newCSS,
+        };
+        chrome.scripting.insertCSS(newInjection, () => {
+          setInjectedStyles((prevStyles) => [...prevStyles, newInjection]);
+          alert("Sucessfully inserted CSS!");
+        });
       } catch (error) {
         alert(error);
       }
     } else alert("Invalid Tab ID!");
   }
 
-  function resetCSS() {
-    const head = window.document.getElementsByTagName("HEAD")[0];
-    head.innerHTML = headContent;
+  async function resetCSS() {
+    //const head = window.document.getElementsByTagName("HEAD")[0];
+    const tab = await getCurrentTab();
+    const tabId = tab.id;
+    if (tabId !== undefined) {
+      const results = Promise.all(
+        injectedStyles.map((styleInjection) => {
+          (chrome.scripting as any).removeCSS(styleInjection);
+        })
+      );
+      setInjectedStyles([]);
+    }
+    //head.innerHTML = headContent;
   }
   return (
     <div className="App">

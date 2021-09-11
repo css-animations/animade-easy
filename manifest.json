@@ -7,5 +7,11 @@
   "homepage_url": "https://github.com/mdn/webextensions-examples/tree/master/devtools-panels",
   "permissions": ["<all_urls>", "scripting"],
   "devtools_page": "devtools/devtools-page.html",
-  "host_permissions": ["*://*/*", "*://*/", "*://*.*"]
+  "host_permissions": [
+    "*://*/*",
+    "*://*/",
+    "*://*.*",
+    "localhost:*",
+    "localhost:*/*"
+  ]
 }
