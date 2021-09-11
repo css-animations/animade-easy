@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import * as devtoolsProtocol from "devtools-protocol";
 async function getCurrentTab() {
   let queryOptions = { active: true, currentWindow: true };
   let [tab] = await chrome.tabs.query(queryOptions);
@@ -97,7 +98,7 @@ export function DevToolProvider(props: DevToolProps) {
       },
       (res: any) => {
         console.log(res);
-        const root = res.root;
+        const root: devtoolsProtocol.Protocol.DOM.Node = res.root;
         const nodeId = root.nodeId;
         chrome.debugger.sendCommand(
           debugee,
@@ -108,7 +109,7 @@ export function DevToolProvider(props: DevToolProps) {
           },
           (res: any) => {
             console.log(res);
-            const nodeId = res.nodeId;
+            const nodeId: devtoolsProtocol.Protocol.DOM.NodeId = res.nodeId;
 
             console.log("Res ID is: " + nodeId);
             chrome.debugger.sendCommand(
@@ -118,10 +119,14 @@ export function DevToolProvider(props: DevToolProps) {
                 nodeId: nodeId,
               },
               (res: any) => {
-                const inline = res.inlineStyle;
-                const attributes = res.attributesStyle;
-                const matched = res.matchedCSSRules;
-                const inherited = res.inherited;
+                const inline: devtoolsProtocol.Protocol.CSS.CSSStyle =
+                  res.inlineStyle;
+                const attributes: devtoolsProtocol.Protocol.CSS.CSSStyle =
+                  res.attributesStyle;
+                const matched: devtoolsProtocol.Protocol.CSS.RuleMatch[] =
+                  res.matchedCSSRules;
+                const inherited: devtoolsProtocol.Protocol.CSS.CSSKeyframesRule[] =
+                  res.inherited;
                 console.log(inline);
                 console.log(attributes);
                 console.log(matched);
@@ -134,32 +139,43 @@ export function DevToolProvider(props: DevToolProps) {
     );
   }
 
-  async function highlightElement(chosenClass: string) {
-    const tab = await getCurrentTab();
-    if (!tab.id && tab.id !== 0) return;
-    const debugee = {
-      tabId: tab.id,
-    };
-    chrome.debugger.sendCommand(debugee, "DOM.enable");
-    chrome.debugger.sendCommand(debugee, "CSS.enable");
+  // async function highlightElement(chosenSelector: string) {
+  //   const tab = await getCurrentTab();
+  //   if (!tab.id && tab.id !== 0) return;
+  //   const debugee = {
+  //     tabId: tab.id,
+  //   };
+  //   chrome.debugger.sendCommand(debugee, "DOM.enable");
+  //   chrome.debugger.sendCommand(debugee, "CSS.enable");
 
-    chrome.debugger.sendCommand(
-      debugee,
-      "DOM.getDocument",
-      {
-        depth: 1,
-      },
-      (res: any) => {
-        console.log(res);
-        const root = res.root;
-        const nodeId = root.nodeId;
-        console.log("DOM Node is: " + nodeId);
-        //chrome.debugger.sendCommand(debugee, "DOM.querySelectorAll", {});
-      }
-    );
+  //   chrome.debugger.sendCommand(
+  //     debugee,
+  //     "DOM.getDocument",
+  //     {
+  //       depth: 1,
+  //     },
+  //     (res: any) => {
+  //       console.log(res);
+  //       const root = res.root;
+  //       const nodeId = root.nodeId;
+  //       console.log("DOM Node is: " + nodeId);
+  //       chrome.debugger.sendCommand(
+  //         debugee,
+  //         "DOM.querySelectorAll",
+  //         {
+  //           nodeId: nodeId,
+  //           selector: chosenSelector,
+  //         },
+  //         (res) => {
+  //           console.log(res);
+  //           const nodeMatches = res.nodeIds;
+  //         }
+  //       );
+  //     }
+  //   );
 
-    let classes = [];
-  }
+  //   let classes = [];
+  // }
 
   //function to injectCSS
   async function injectCSS(chosenClass: string) {
@@ -175,7 +191,7 @@ export function DevToolProvider(props: DevToolProps) {
         transform: rotate(360deg);
       }
     }
-    .${chosenClass} {
+    ${chosenClass} {
       animation: spinny infinite 20s linear;
     }
     `;

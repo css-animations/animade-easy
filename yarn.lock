@@ -4536,6 +4536,11 @@ detect-port-alt@1.1.6:
     address "^1.0.1"
     debug "^2.6.0"
 
+devtools-protocol@^0.0.919640:
+  version "0.0.919640"
+  resolved "https://registry.yarnpkg.com/devtools-protocol/-/devtools-protocol-0.0.919640.tgz#d96993ce70a13b8792f1afeb4f2f350c17f2768f"
+  integrity sha512-VCaz3E6t/IOkSRPRj/CnF9HFh0hHkpncyomWIPkh5oU/VWMkjs+3x9W4fmPP3mxSwveJfX/eNTIICHohZJ/yLw==
+
 diff-sequences@^26.6.2:
   version "26.6.2"
   resolved "https://registry.yarnpkg.com/diff-sequences/-/diff-sequences-26.6.2.tgz#48ba99157de1923412eed41db6b6d4aa9ca7c0b1"
