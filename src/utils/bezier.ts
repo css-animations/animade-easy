@@ -5,7 +5,15 @@ import {
   RelativeBezierPoint,
 } from "../types/bezier";
 import React from "react";
-import { GenRotMat, m_mul_22x21, PointTo21, TwoOneToPoint } from "./vectors";
+import {
+  GenRotMat,
+  unitVector,
+  m_mul_22x21,
+  magnitude,
+  PointTo21,
+  TwoOneToPoint,
+  vec, neg, vecMul, pt,
+} from "./vectors";
 
 function getControlPoints(
   zero: Point,
@@ -141,17 +149,17 @@ export function GetRelativeBezierPoint(
   };
 }
 
-export function GetRelativePoint(center: Point, point: Point): Point {
+export function GetRelativePoint(center: Point, absPoint: Point): Point {
   return {
-    x: center.x - point.x,
-    y: center.y - point.y,
+    x: absPoint.x - center.x,
+    y: absPoint.y - center.y,
   };
 }
 
-export function GetAbsolutePoint(center: Point, point: Point): Point {
+export function GetAbsolutePoint(center: Point, relPoint: Point): Point {
   return {
-    x: center.x + point.x,
-    y: center.y + point.y,
+    x: center.x + relPoint.x,
+    y: center.y + relPoint.y,
   };
 }
 
@@ -186,16 +194,16 @@ export function setCurvePointByIndex(
       setCurve((prevCurve) =>
         prevCurve.map((prevPoint, ind) => {
           if (ind === heldIndex.index) {
-            const { ctrlPt1R, ctrlPt2R } = GetRelativeBezierPoint(prevPoint);
+            const { ctrlPt2R: drivenPoint } = GetRelativeBezierPoint(prevPoint);
             const relCurrentPt = GetRelativePoint(prevPoint.ctrlPt1A, newPoint);
-            const theta = Math.atan2(ctrlPt1R.y - relCurrentPt.y, ctrlPt1R.x - relCurrentPt.x)
-            console.log(theta)
-            const rotMatr = GenRotMat(theta)
-            const rot_point: Point = TwoOneToPoint(m_mul_22x21(rotMatr, PointTo21(ctrlPt2R)))
+            const newPointUnitVector = unitVector(vec(relCurrentPt));
+            const drivenPointMag = magnitude(vec(drivenPoint));
+            const newDrivenPoint = pt(vecMul(neg(newPointUnitVector), drivenPointMag));
+            console.log({drivenPtAbs: GetAbsolutePoint(prevPoint.pt, newDrivenPoint), dotPt: prevPoint.pt})
             return {
               pt: prevPoint.pt,
               ctrlPt1A: newPoint,
-              ctrlPt2A: GetAbsolutePoint(prevPoint.pt, rot_point),
+              ctrlPt2A: GetAbsolutePoint(prevPoint.pt, newDrivenPoint),
             };
           } else return prevPoint;
         }),
