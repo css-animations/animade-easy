@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import logo from "./logo.svg";
 import AnimatedProperties from "./components/AnimatedProperties";
 import "./App.css";
-import Dropdown from 'react-dropdown';
+import Dropdown from "react-dropdown";
 function App() {
   const [headContent, setHeadContent] = useState("");
   const [classInput, setClassInput] = useState("");
@@ -32,27 +32,6 @@ function App() {
     <div className="App">
       <header className="App-header">
         <AnimatedProperties />
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <input
-          type="text"
-          value={classInput}
-          placeholder="Choose a CSS Class"
-          onChange={(event) => setClassInput(event.target.value)}
-        />
-        <button onClick={() => injectCSS(classInput)}>Move the Text</button>
-        <button onClick={() => resetCSS()}>Reset the CSS</button>
-        <div className="test-class">Boop Dee Boop</div>
       </header>
     </div>
   );

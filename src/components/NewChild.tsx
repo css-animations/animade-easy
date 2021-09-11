@@ -62,7 +62,7 @@ function NewChild(props: NewChildProps) {
         <IconButton aria-label="Add new property" onClick={handleClick}>
           <AddIcon />
         </IconButton>
-        Add new property
+        Add new {props.type}
       </span>
       <Modal open={open} onClose={handleClose}>
         {body}
