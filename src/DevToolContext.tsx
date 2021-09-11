@@ -5,13 +5,23 @@ async function getCurrentTab() {
   let [tab] = await chrome.tabs.query(queryOptions);
   return tab;
 }
-
+const defaultHighlightConfig = {
+  showInfo: true,
+  showRulers: true,
+  contentColor: {
+    r: 0,
+    g: 0,
+    b: 0,
+    a: 0.5,
+  },
+};
 interface DevToolContextType {
   injectedStyles: chrome.scripting.CSSInjection[];
   injectCSS: (chosenClass: string) => void;
   resetCSS: () => void;
   queryElement: (chosenSelector: string) => void;
   attachDebugger: () => void;
+  highlightElement: (chosenSelector: string) => void;
 }
 
 const defaultDevContext: DevToolContextType = {
@@ -20,6 +30,7 @@ const defaultDevContext: DevToolContextType = {
   resetCSS: () => {},
   queryElement: (chosenSelector: string) => {},
   attachDebugger: () => {},
+  highlightElement: () => {},
 };
 
 export const DevToolContext = React.createContext(defaultDevContext);
@@ -37,23 +48,7 @@ export function DevToolProvider(props: DevToolProps) {
 
   useEffect(() => {
     async function debugAttach() {
-      const tab = await getCurrentTab();
-      //attach debugger if valid tab
-      if (tab.id || tab.id === 0) {
-        const debugee = {
-          tabId: tab.id,
-        };
-        chrome.debugger.attach(debugee, "1.3");
-        console.log("Attached!");
-        chrome.debugger.onEvent.addListener((source, method, params) => {
-          //alert(source);
-          //alert(method);
-          //alert(params);
-          console.log("Received message!");
-          //console.log(source);
-          console.log(params);
-        });
-      } else alert("Invalid tab ID!");
+      await attachDebugger();
     }
     debugAttach();
     //chrome.debugger.attach
@@ -68,12 +63,17 @@ export function DevToolProvider(props: DevToolProps) {
       chrome.debugger.attach(debugee, "1.3");
       console.log("Attached!");
       chrome.debugger.onEvent.addListener((source, method, params) => {
-        alert(source);
-        alert(method);
-        alert(params);
+        //alert(source);
+        //alert(method);
+        //alert(params);
       });
       chrome.debugger.sendCommand(debugee, "DOM.enable");
       chrome.debugger.sendCommand(debugee, "CSS.enable");
+      chrome.debugger.sendCommand(debugee, "Overlay.enable");
+      chrome.debugger.sendCommand(debugee, "Overlay.setInspectMode", {
+        mode: "searchForNode",
+        highlightConfig: defaultHighlightConfig,
+      });
     } else alert("Invalid tab ID!");
   }
 
@@ -139,43 +139,63 @@ export function DevToolProvider(props: DevToolProps) {
     );
   }
 
-  // async function highlightElement(chosenSelector: string) {
-  //   const tab = await getCurrentTab();
-  //   if (!tab.id && tab.id !== 0) return;
-  //   const debugee = {
-  //     tabId: tab.id,
-  //   };
-  //   chrome.debugger.sendCommand(debugee, "DOM.enable");
-  //   chrome.debugger.sendCommand(debugee, "CSS.enable");
+  async function highlightElement(chosenSelector: string) {
+    const tab = await getCurrentTab();
+    if (!tab.id && tab.id !== 0) return;
+    const debugee = {
+      tabId: tab.id,
+    };
+    chrome.debugger.sendCommand(debugee, "DOM.enable");
+    chrome.debugger.sendCommand(debugee, "CSS.enable");
+    chrome.debugger.sendCommand(debugee, "Overlay.enable");
+    // chrome.debugger.sendCommand(debugee, "Overlay.setInspectMode", {
+    //   mode: "searchForNode",
+    //   highlightConfig: defaultHighlightConfig,
+    // });
 
-  //   chrome.debugger.sendCommand(
-  //     debugee,
-  //     "DOM.getDocument",
-  //     {
-  //       depth: 1,
-  //     },
-  //     (res: any) => {
-  //       console.log(res);
-  //       const root = res.root;
-  //       const nodeId = root.nodeId;
-  //       console.log("DOM Node is: " + nodeId);
-  //       chrome.debugger.sendCommand(
-  //         debugee,
-  //         "DOM.querySelectorAll",
-  //         {
-  //           nodeId: nodeId,
-  //           selector: chosenSelector,
-  //         },
-  //         (res) => {
-  //           console.log(res);
-  //           const nodeMatches = res.nodeIds;
-  //         }
-  //       );
-  //     }
-  //   );
+    chrome.debugger.sendCommand(
+      debugee,
+      "DOM.getDocument",
+      {
+        depth: 1,
+      },
+      (res: any) => {
+        console.log(res);
+        const root = res.root;
+        const nodeId = root.nodeId;
+        console.log("DOM Node is: " + nodeId);
+        chrome.debugger.sendCommand(
+          debugee,
+          "DOM.querySelectorAll",
+          {
+            nodeId: nodeId,
+            selector: chosenSelector,
+          },
+          (res: any) => {
+            console.log(res);
+            const nodeMatches: devtoolsProtocol.Protocol.DOM.NodeId[] =
+              res.nodeIds;
+            for (const matchID of nodeMatches) {
+              chrome.debugger.sendCommand(
+                debugee,
+                "Overlay.highlightNode",
+                {
+                  nodeId: matchID,
+                  highlightConfig: defaultHighlightConfig,
+                },
+                (res) => {
+                  console.log(res);
+                  return;
+                }
+              );
+            }
+          }
+        );
+      }
+    );
 
-  //   let classes = [];
-  // }
+    let classes = [];
+  }
 
   //function to injectCSS
   async function injectCSS(chosenClass: string) {
@@ -234,6 +254,7 @@ export function DevToolProvider(props: DevToolProps) {
         resetCSS,
         queryElement,
         attachDebugger,
+        highlightElement,
       }}
     >
       {props.children}

@@ -17,11 +17,15 @@ export default function AppWrapper() {
   );
 }
 function AppContent() {
-  const { injectCSS, resetCSS, queryElement, attachDebugger } =
-    useContext(DevToolContext);
+  const {
+    injectCSS,
+    resetCSS,
+    queryElement,
+    attachDebugger,
+    highlightElement,
+  } = useContext(DevToolContext);
 
-  const [headContent, setHeadContent] = useState("");
-  const [classInput, setClassInput] = useState("");
+  const [elementInput, setElementInput] = useState("");
   return (
     <div className="App">
       <header className="App-header">
@@ -39,14 +43,17 @@ function AppContent() {
         </a>
         <input
           type="text"
-          value={classInput}
+          value={elementInput}
           placeholder="Choose a Query Selector"
-          onChange={(event) => setClassInput(event.target.value)}
+          onChange={(event) => setElementInput(event.target.value)}
         />
-        <button onClick={() => injectCSS(classInput)}>Move the Text</button>
+        <button onClick={() => injectCSS(elementInput)}>Move the Text</button>
         <button onClick={() => resetCSS()}>Reset the CSS</button>
-        <button onClick={() => queryElement(classInput)}>
+        <button onClick={() => queryElement(elementInput)}>
           Inspect Query Selector!
+        </button>
+        <button onClick={() => highlightElement(elementInput)}>
+          Highlight Query Selector!
         </button>
         <button onClick={() => attachDebugger()}>Attach a debugger!</button>
         <AnimatedProperties />
