@@ -6,5 +6,5 @@
   "author": "Christophe Villeneuve",
   "homepage_url": "https://github.com/mdn/webextensions-examples/tree/master/devtools-panels",
   "permissions": ["<all_urls>"],
-  "devtools_page": "./src/devtools/devtools-page.html"
+  "devtools_page": "devtools/devtools-page.html"
 }

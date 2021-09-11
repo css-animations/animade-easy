@@ -2,6 +2,7 @@
   "name": "css-react-setup",
   "version": "0.1.0",
   "private": true,
+  "homepage": "build",
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
@@ -14,11 +15,12 @@
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
     "typescript": "^4.1.2",
-    "web-vitals": "^1.0.1"
+    "web-vitals": "^1.0.1",
+    "webextension-polyfill": "^0.8.0"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "cross-env INLINE_RUNTIME_CHUNK=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "start:chrome": "web-ext run -t chromium",
@@ -43,6 +45,8 @@
     ]
   },
   "devDependencies": {
-    "web-ext": "^6.4.0"
+    "web-ext": "^6.4.0",
+    "@types/chrome": "^0.0.157",
+    "@types/webextension-polyfill": "^0.8.0"
   }
 }
