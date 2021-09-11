@@ -1,17 +1,30 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import logo from "./logo.svg";
 import "./App.css";
-
 function App() {
-  function injectCSS() {
+  const [headContent, setHeadContent] = useState("");
+  const [classInput, setClassInput] = useState("");
+
+  //grab initial head content onMount
+  useEffect(() => {
+    const head = window.document.getElementsByTagName("HEAD")[0];
+    setHeadContent(head.innerHTML);
+  }, []);
+
+  function injectCSS(chosenClass: string) {
     const head = window.document.getElementsByTagName("HEAD")[0];
     const newStyle = document.createElement("style");
     newStyle.innerHTML = `
-    .App-link {
+    .${chosenClass} {
       animation: App-logo-spin infinite 20s linear;
     }
     `;
     head.appendChild(newStyle);
+  }
+
+  function resetCSS() {
+    const head = window.document.getElementsByTagName("HEAD")[0];
+    head.innerHTML = headContent;
   }
   return (
     <div className="App">
@@ -28,7 +41,15 @@ function App() {
         >
           Learn React
         </a>
-        <button onClick={() => injectCSS()}>Move the Text</button>
+        <input
+          type="text"
+          value={classInput}
+          placeholder="Choose a CSS Class"
+          onChange={(event) => setClassInput(event.target.value)}
+        />
+        <button onClick={() => injectCSS(classInput)}>Move the Text</button>
+        <button onClick={() => resetCSS()}>Reset the CSS</button>
+        <div className="test-class">Boop Dee Boop</div>
       </header>
     </div>
   );
