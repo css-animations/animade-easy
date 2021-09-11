@@ -1,31 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
+import { DevToolContext, DevToolProvider } from "./DevToolContext";
 import logo from "./logo.svg";
 import "./App.css";
-function App() {
-  const [headContent, setHeadContent] = useState("");
+import { devtools } from "webextension-polyfill";
+async function getCurrentTab() {
+  let queryOptions = { active: true, currentWindow: true };
+  let [tab] = await chrome.tabs.query(queryOptions);
+  return tab;
+}
+export default function AppWrapper() {
+  return (
+    <DevToolProvider>
+      <AppContent />
+    </DevToolProvider>
+  );
+}
+function AppContent() {
+  const { injectCSS, resetCSS, queryClassElement, attachDebugger } =
+    useContext(DevToolContext);
   const [classInput, setClassInput] = useState("");
-
-  //grab initial head content onMount
-  useEffect(() => {
-    const head = window.document.getElementsByTagName("HEAD")[0];
-    setHeadContent(head.innerHTML);
-  }, []);
-
-  function injectCSS(chosenClass: string) {
-    const head = window.document.getElementsByTagName("HEAD")[0];
-    const newStyle = document.createElement("style");
-    newStyle.innerHTML = `
-    .${chosenClass} {
-      animation: App-logo-spin infinite 20s linear;
-    }
-    `;
-    head.appendChild(newStyle);
-  }
-
-  function resetCSS() {
-    const head = window.document.getElementsByTagName("HEAD")[0];
-    head.innerHTML = headContent;
-  }
   return (
     <div className="App">
       <header className="App-header">
@@ -50,9 +43,11 @@ function App() {
         <button onClick={() => injectCSS(classInput)}>Move the Text</button>
         <button onClick={() => resetCSS()}>Reset the CSS</button>
         <div className="test-class">Boop Dee Boop</div>
+        <button onClick={() => queryClassElement(classInput)}>
+          Inspect class element!
+        </button>
+        <button onClick={() => attachDebugger()}>Attach a debugger!</button>
       </header>
     </div>
   );
 }
-
-export default App;
