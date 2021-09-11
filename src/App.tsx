@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import logo from "./logo.svg";
+import AnimatedProperties from "./components/AnimatedProperties";
 import "./App.css";
+import Dropdown from 'react-dropdown';
 function App() {
   const [headContent, setHeadContent] = useState("");
   const [classInput, setClassInput] = useState("");
@@ -29,6 +31,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
+        <AnimatedProperties />
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
