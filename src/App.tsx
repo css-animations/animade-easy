@@ -1,31 +1,33 @@
 import React, { useState, useContext } from "react";
-import { DevToolContext, DevToolProvider } from "./DevToolContext";
+// import { DevToolContext, DevToolProvider } from "./DevToolContext";
 import logo from "./logo.svg";
 import AnimatedProperties from "./components/AnimatedProperties";
+import KeyframeDetails from "./components/KeyframeDetails";
 import "./App.css";
-import { devtools } from "webextension-polyfill";
-async function getCurrentTab() {
-  let queryOptions = { active: true, currentWindow: true };
-  let [tab] = await chrome.tabs.query(queryOptions);
-  return tab;
-}
+// import { devtools } from "webextension-polyfill";
+// async function getCurrentTab() {
+//   let queryOptions = { active: true, currentWindow: true };
+//   let [tab] = await chrome.tabs.query(queryOptions);
+//   return tab;
+// }
 export default function AppWrapper() {
   return (
-    <DevToolProvider>
-      <AppContent />
-    </DevToolProvider>
+    // <DevToolProvider>
+    //   <AppContent />
+    // </DevToolProvider>
+    <AppContent />
   );
 }
 function AppContent() {
-  const { injectCSS, resetCSS, queryElement, attachDebugger } =
-    useContext(DevToolContext);
+  // const { injectCSS, resetCSS, queryElement, attachDebugger } =
+  //   useContext(DevToolContext);
 
   const [headContent, setHeadContent] = useState("");
   const [classInput, setClassInput] = useState("");
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        {/* <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
@@ -48,8 +50,9 @@ function AppContent() {
         <button onClick={() => queryElement(classInput)}>
           Inspect Query Selector!
         </button>
-        <button onClick={() => attachDebugger()}>Attach a debugger!</button>
+        <button onClick={() => attachDebugger()}>Attach a debugger!</button> */}
         <AnimatedProperties />
+        <KeyframeDetails />
       </header>
     </div>
   );
