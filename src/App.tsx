@@ -66,9 +66,6 @@ function AppContent() {
         {propertyData.propertyMetadata.selectedProperty &&
         propertyData.propertyMetadata.selectedProperty in propertyData.properties ? (
           <BezierComponent
-            selectedProperty={
-              propertyData.properties[propertyData.propertyMetadata.selectedProperty] as Property
-            }
             currentIndex={1}
             width={400}
             height={400}
