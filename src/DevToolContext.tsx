@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import * as devtoolsProtocol from "devtools-protocol";
-import { ANIMATABLE_PROPERTIES } from "./components/NewChild";
+import { AnimationPropertyType } from "./types/devToolContext";
 async function getCurrentTab() {
   let queryOptions = { active: true, currentWindow: true };
   let [tab] = await chrome.tabs.query(queryOptions);
@@ -10,27 +10,6 @@ async function getCurrentTab() {
 const importantAttributesHash: any = {
   class: true,
   id: true,
-};
-
-export interface AnimationPropertyType {
-  animationName: string;
-  animationTypes: AnimationTypeDatum[];
-  direction: string;
-  duration: string;
-}
-
-interface AnimationTypeDatum {
-  animationType: ANIMATABLE_PROPERTIES;
-  formatFunction: (rawData: string) => string;
-}
-export const ScaleTypeAnimation: AnimationTypeDatum = {
-  animationType: ANIMATABLE_PROPERTIES.scale,
-  formatFunction: (rawData: string): string => `transform: scale(${rawData});`,
-};
-
-export const RotateTypeAnimation: AnimationTypeDatum = {
-  animationType: ANIMATABLE_PROPERTIES.rotate,
-  formatFunction: (rawData: string) => `transform: rotate(${rawData}deg);`,
 };
 
 interface propertyType {
@@ -48,6 +27,7 @@ const defaultHighlightConfig = {
     a: 0.5,
   },
 };
+
 interface DevToolContextType {
   injectedStyles: chrome.scripting.CSSInjection[];
   injectCSS: (chosenSelector: string) => void;
@@ -65,11 +45,11 @@ interface DevToolContextType {
     animationObj: AnimationPropertyType,
     percentageList: number[],
   ) => void;
-  // injectCSSAnimationClasses: (
-  //   animationClasses: animationPropertyType[],
-  //   classNames: string[],
-  // ) => void;
   injectedAnimations: AnimationPropertyType[];
+  injectCSSAnimationClasses: (
+    animationClasses: AnimationPropertyType[],
+    classNames: string[],
+  ) => void;
 }
 
 const defaultDevContext: DevToolContextType = {
@@ -89,10 +69,10 @@ const defaultDevContext: DevToolContextType = {
     animationObj: AnimationPropertyType,
     percentageList: number[],
   ) => {},
-  // injectCSSAnimationClasses: (
-  //   animationClasses: animationPropertyType[],
-  //   classNames: string[],
-  // ) => {},
+  injectCSSAnimationClasses: (
+    animationClasses: AnimationPropertyType[],
+    classNames: string[],
+  ) => {},
   injectedAnimations: [],
 };
 
@@ -111,7 +91,6 @@ export function DevToolProvider(props: DevToolProps) {
   //sets of chosen classes/IDs
   const [chosenClasses, setChosenClasses] = useState({});
   const [chosenIDs, setChosenIDs] = useState({});
-  //TODO: make this typed
   const [injectedAnimations, setInjectedAnimations] = useState<
     AnimationPropertyType[]
   >([]);
@@ -126,7 +105,6 @@ export function DevToolProvider(props: DevToolProps) {
       };
       //alert(source);
       console.log(method);
-      //console.log the styles as necessary
       if (method === "CSS.styleSheetAdded") {
         console.log(params.header);
       }
@@ -191,7 +169,7 @@ export function DevToolProvider(props: DevToolProps) {
       const tab = await getCurrentTab();
 
       if (!tab && tab !== 0) {
-        console.log("No Tab!");
+        console.error("No Tab!");
         return;
       }
       const debugee = {
@@ -276,8 +254,6 @@ export function DevToolProvider(props: DevToolProps) {
   ) {
     console.log("from is: " + from);
     console.log("to is: " + to);
-    //const head = window.document.getElementsByTagName("HEAD")[0];
-    //const newStyle = document.createElement("style");
     const tab = await getCurrentTab();
     const newCSS = `
     @keyframes spinny {
@@ -329,14 +305,13 @@ export function DevToolProvider(props: DevToolProps) {
       newAnimationPercentages.push(perc);
       //CHOOSE FROM POINTS SOMEHOW BY INCREMENTING I HERE
     }
-    //const newAnimationPercentages = [0, 0.13, 0.8, 1].map((perc) => perc * 100);
     let newCSS = `@keyframes ${animationObj.animationName} {`;
     for (const percentage of newAnimationPercentages) {
       newCSS += `
       ${percentage}% {`;
       for (const property of animationObj.animationTypes) {
         newCSS += `
-        ${property.formatFunction("75")}`;
+        ${property.formatFunction(75)}`;
       }
     }
     newCSS += `
@@ -357,44 +332,41 @@ export function DevToolProvider(props: DevToolProps) {
     });
   }
 
-  // async function injectCSSAnimationClasses(
-  //   animationClasses: animationPropertyType[],
-  //   classNames: string[],
-  // ) {
-  //   const ANIMATION_LENGTH = 5;
-  //   const tab = await getCurrentTab();
-  //   if (!tab.id && tab.id !== 0) return;
-  //   const debugee = {
-  //     tabId: tab.id,
-  //   };
+  async function injectCSSAnimationClasses(
+    animationProperty: AnimationPropertyType[],
+    cssSelector: string[],
+  ) {
+    const tab = await getCurrentTab();
+    if (!tab.id && tab.id !== 0) return;
+    const debugee = {
+      tabId: tab.id,
+    };
 
-  //   let newCSS = ``;
-  //   //TODO: Grab this from state somewhere idk
-  //   //const CLASS_NAMES = ["jeff", "bezos", "zuck", "gates"];
-  //   for (const name of classNames) {
-  //     newCSS += `
-  //     ${name} {
-  //       `;
-  //     for (const propertyObj of animationClasses) {
-  //       newCSS += `
-  //       animation: ${propertyObj.animationName} infinite ${propertyObj.duration};
-  //       `;
-  //     }
-  //     newCSS += `
-  //   }`;
-  //   }
+    let newCSS = ``;
+    //TODO: Grab this from state somewhere idk
+    for (const selector of cssSelector) {
+      newCSS += `
+      ${selector} {
+        `;
+      for (const propertyObj of animationProperty) {
+        newCSS += `
+        animation: ${propertyObj.animationName} ${propertyObj.duration} linear ${propertyObj.iterationCount ? propertyObj.iterationCount : ''} ${propertyObj.direction ? propertyObj.direction : ''} ${propertyObj.fillMode ? propertyObj.fillMode : ''};
+        `;
+      }
+      newCSS += `
+    }`;
+    }
 
-  //   console.log(newCSS);
-
-  //   const newInjection: chrome.scripting.CSSInjection = {
-  //     css: newCSS,
-  //     target: debugee,
-  //   };
-  //   chrome.scripting.insertCSS(newInjection, () => {
-  //     setInjectedStyles((prevStyles) => [...prevStyles, newInjection]);
-  //     console.log("Added animation to classes!");
-  //   });
-  // }
+    console.log(newCSS);
+    const newInjection: chrome.scripting.CSSInjection = {
+      css: newCSS,
+      target: debugee,
+    };
+    chrome.scripting.insertCSS(newInjection, () => {
+      setInjectedStyles((prevStyles) => [...prevStyles, newInjection]);
+      console.log("Added animation to classes!");
+    });
+  }
 
   async function resetCSS() {
     //const head = window.document.getElementsByTagName("HEAD")[0];
@@ -458,7 +430,7 @@ export function DevToolProvider(props: DevToolProps) {
         chosenIDs,
         setChosenClasses,
         injectCSSAnimation,
-        //injectCSSAnimationClasses,
+        injectCSSAnimationClasses,
         injectedAnimations,
       }}
     >

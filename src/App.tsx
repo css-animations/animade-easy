@@ -8,17 +8,13 @@ import "./App.css";
 import { BezierComponent } from "./components/Canvas";
 import { Property } from "./types/propertyData";
 import {
-  AnimationPropertyType,
-  ScaleTypeAnimation,
-  RotateTypeAnimation,
-} from "./DevToolContext";
-import {
   propertyReducer,
   PropertyReducerActionTypes,
   propertyReducerDefaultState,
 } from "./utils/propertyDataReducer";
 import { Point } from "./types/bezier";
 import { ANIMATABLE_PROPERTIES } from "./components/NewChild";
+import { AnimationPropertyType, RotateTypeAnimation, ScaleTypeAnimation } from "./types/devToolContext";
 
 const TEST_DATA = [0, 0.13, 0.8, 1];
 
@@ -26,17 +22,10 @@ const TEST_TYPE: AnimationPropertyType = {
   animationTypes: [RotateTypeAnimation, ScaleTypeAnimation],
   animationName: "floop",
   direction: "reverse",
-  duration: "infinite",
+  duration: "5s",
+  iterationCount: "infinite"
 };
 
-// const TEST_STUFF: animationPropertyType[] = [
-//   {
-//     animationName: "fun",
-//     duration: "4s",
-//     value: "yo",
-//     direction: "up",
-//   },
-// ];
 
 export default function AppWrapper() {
   return (
@@ -58,7 +47,7 @@ function AppContent() {
     chosenIDs,
     setChosenClasses,
     injectCSSAnimation,
-    //injectCSSAnimationClasses,
+    injectCSSAnimationClasses,
     injectedAnimations,
   } = useContext(DevToolContext);
   const [propertyData, dispatchPropertyData] = useReducer(
@@ -153,8 +142,7 @@ function AppContent() {
         <div>Chosen Classes: {chosenClassContainers}</div>
         <button
           onClick={() =>
-            //injectCSSAnimationClasses(TEST_STUFF, chosenClassNames)
-            console.log("yo")
+            injectCSSAnimationClasses(injectedAnimations, chosenClassNames)
           }
         >
           Apply Animation!
