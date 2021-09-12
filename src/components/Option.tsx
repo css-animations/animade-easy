@@ -7,8 +7,6 @@ import { ANIMATION_OPTION } from "./NewChild";
 interface OptionProps {
   name: OptionType;
   value: AnimationDirections | AnimationFillMode;
-  // possibleValues: string[];
-  // setValue: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 function Option(props: OptionProps) {
@@ -29,7 +27,6 @@ function Option(props: OptionProps) {
   }
 
   const handleValueChange = (newValue: typeof value) => {
-    console.log(propertyData.propertyMetadata.selectedProperty);
     if (propertyData.propertyMetadata.selectedProperty !== undefined) {
       setValue(newValue);
       dispatchPropertyData({
@@ -40,14 +37,25 @@ function Option(props: OptionProps) {
     }
   };
 
-  console.log(values);
+  function stringIsDirection(value: string): value is AnimationDirections {
+    return value in AnimationDirections;
+  }
+
+  function stringIsFill(value: string): value is AnimationFillMode {
+    return value in AnimationFillMode;
+  }
+
+  console.log(propertyData);
   return (
     <div>
       {props.name}
       <select
         onChange={(event) => {
-          // if (stringIsOptionValue(event.target.value)) handleValueChange(event.target.value);
+          if (stringIsDirection(event.target.value) || stringIsFill(event.target.value)) {
+            handleValueChange(event.target.value);
+          }
         }}
+        value={value && value}
       >
         <option hidden> -- select an option -- </option>
         {values.map((value, index) => {
