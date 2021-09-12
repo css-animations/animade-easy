@@ -10,7 +10,20 @@ const importantAttributesHash: any = {
   class: true,
   id: true,
 };
+const defaultAnimationProperty: animationPropertyType = {
+  animationName: "hello",
+  value: "idk",
+  direction: "left",
+  duration: "5s",
+};
 
+//easing is linear cuz the animation handles it
+export interface animationPropertyType {
+  animationName: string;
+  value: string;
+  direction: string;
+  duration: string;
+}
 interface propertyType {
   name: string;
   value: string;
@@ -30,10 +43,8 @@ interface DevToolContextType {
   injectedStyles: chrome.scripting.CSSInjection[];
   injectCSS: (chosenSelector: string) => void;
   resetCSS: () => void;
-  queryElement: (chosenSelector: string) => void;
   attachInspect: () => void;
   detachInspect: () => void;
-  highlightElement: (chosenSelector: string) => void;
   from: number;
   setFrom: React.Dispatch<React.SetStateAction<number>>;
   to: number;
@@ -42,16 +53,22 @@ interface DevToolContextType {
   setChosenClasses: React.Dispatch<React.SetStateAction<{}>>;
   chosenIDs: {};
   applyAnimation: () => void;
+  injectCSSAnimation: (
+    animationTitle: string,
+    percentageList: number[],
+  ) => void;
+  injectCSSAnimationClasses: (
+    animationClasses: animationPropertyType[],
+    classNames: string[],
+  ) => void;
 }
 
 const defaultDevContext: DevToolContextType = {
   injectedStyles: [],
   injectCSS: (chosenSelector: string) => {},
   resetCSS: () => {},
-  queryElement: (chosenSelector: string) => {},
   attachInspect: () => {},
   detachInspect: () => {},
-  highlightElement: () => {},
   from: 0,
   setFrom: () => {},
   to: 100,
@@ -60,6 +77,11 @@ const defaultDevContext: DevToolContextType = {
   setChosenClasses: () => {},
   chosenIDs: {},
   applyAnimation: () => {},
+  injectCSSAnimation: (animationTitle: string, percentageList: number[]) => {},
+  injectCSSAnimationClasses: (
+    animationClasses: animationPropertyType[],
+    classNames: string[],
+  ) => {},
 };
 
 export const DevToolContext = React.createContext(defaultDevContext);
@@ -140,12 +162,12 @@ export function DevToolProvider(props: DevToolProps) {
                 }));
               }
             }
-          }
+          },
         );
       }
       //alert(params);
     },
-    [from, to]
+    [from, to],
   );
   //when component mounts, attach debugger to current tab
   useEffect(() => {
@@ -211,68 +233,6 @@ export function DevToolProvider(props: DevToolProps) {
     } else alert("Invalid tab ID!");
   }
 
-  async function queryElement(chosenSelector: string) {
-    //attempt 2 with document
-    const tab = await getCurrentTab();
-
-    if (!tab && tab !== 0) return;
-    const debugee = {
-      tabId: tab.id,
-    };
-    // chrome.debugger.sendCommand(debugee, "DOM.enable");
-    // chrome.debugger.sendCommand(debugee, "CSS.enable");
-    chrome.debugger.sendCommand(debugee, "DOM.enable");
-    chrome.debugger.sendCommand(debugee, "CSS.enable");
-
-    chrome.debugger.sendCommand(
-      debugee,
-      "DOM.getDocument",
-      {
-        depth: 1,
-      },
-      (res: any) => {
-        console.log(res);
-        const root: devtoolsProtocol.Protocol.DOM.Node = res.root;
-        const nodeId = root.nodeId;
-        chrome.debugger.sendCommand(
-          debugee,
-          "DOM.querySelector",
-          {
-            nodeId: nodeId,
-            selector: chosenSelector,
-          },
-          (res: any) => {
-            console.log(res);
-            const nodeId: devtoolsProtocol.Protocol.DOM.NodeId = res.nodeId;
-
-            console.log("Res ID is: " + nodeId);
-            chrome.debugger.sendCommand(
-              debugee,
-              "CSS.getMatchedStylesForNode",
-              {
-                nodeId: nodeId,
-              },
-              (res: any) => {
-                const inline: devtoolsProtocol.Protocol.CSS.CSSStyle =
-                  res.inlineStyle;
-                const attributes: devtoolsProtocol.Protocol.CSS.CSSStyle =
-                  res.attributesStyle;
-                const matched: devtoolsProtocol.Protocol.CSS.RuleMatch[] =
-                  res.matchedCSSRules;
-                const inherited: devtoolsProtocol.Protocol.CSS.CSSKeyframesRule[] =
-                  res.inherited;
-                console.log(inline);
-                console.log(attributes);
-                console.log(matched);
-                console.log(inherited);
-              }
-            );
-          }
-        );
-      }
-    );
-  }
-
   async function applyAnimation() {
     for (let chosenClass of Object.keys(chosenClasses)) {
       console.log("Applying animation to a class!");
@@ -284,79 +244,19 @@ export function DevToolProvider(props: DevToolProps) {
     }
   }
 
-  //highlight the last instance of a selector
-  async function highlightElement(chosenSelector: string) {
-    const tab = await getCurrentTab();
-    if (!tab.id && tab.id !== 0) return;
-    const debugee = {
-      tabId: tab.id,
-    };
-    chrome.debugger.sendCommand(debugee, "DOM.enable");
-    chrome.debugger.sendCommand(debugee, "CSS.enable");
-    chrome.debugger.sendCommand(debugee, "Overlay.enable");
-    // chrome.debugger.sendCommand(debugee, "Overlay.setInspectMode", {
-    //   mode: "searchForNode",
-    //   highlightConfig: defaultHighlightConfig,
-    // });
-
-    chrome.debugger.sendCommand(
-      debugee,
-      "DOM.getDocument",
-      {
-        depth: 1,
-      },
-      (res: any) => {
-        console.log(res);
-        const root = res.root;
-        const nodeId = root.nodeId;
-        console.log("DOM Node is: " + nodeId);
-        chrome.debugger.sendCommand(
-          debugee,
-          "DOM.querySelectorAll",
-          {
-            nodeId: nodeId,
-            selector: chosenSelector,
-          },
-          (res: any) => {
-            console.log(res);
-            const nodeMatches: devtoolsProtocol.Protocol.DOM.NodeId[] =
-              res.nodeIds;
-            for (const matchID of nodeMatches) {
-              chrome.debugger.sendCommand(
-                debugee,
-                "Overlay.highlightNode",
-                {
-                  nodeId: matchID,
-                  highlightConfig: defaultHighlightConfig,
-                },
-                (res) => {
-                  console.log(res);
-                  return;
-                }
-              );
-            }
-          }
-        );
-      }
-    );
-
-    let classes = [];
-  }
-
   //function to injectCSS
-
   const injectCSS = useCallback(
     async (chosenSelector: string) => {
       console.log("from is: " + from);
       console.log("to is: " + to);
       injectCSSFunc(chosenSelector, from, to);
     },
-    [from, to]
+    [from, to],
   );
   async function injectCSSFunc(
     chosenSelector: string,
     from: number,
-    to: number
+    to: number,
   ) {
     console.log("from is: " + from);
     console.log("to is: " + to);
@@ -393,6 +293,87 @@ export function DevToolProvider(props: DevToolProps) {
     } else alert("Invalid Tab ID!");
   }
 
+  //function to inject CSS Animation
+  async function injectCSSAnimation(
+    animationTitle: string,
+    percentageList: number[],
+  ) {
+    const tab = await getCurrentTab();
+    if (!tab.id && tab.id !== 0) return;
+    const debugee = {
+      tabId: tab.id,
+    };
+    //TODO: Grab the animation from somewhere
+
+    const THRESHOLD = 30;
+
+    const newAnimationPercentages: number[] = [];
+    for (let i = 0; i < percentageList.length && THRESHOLD; i++) {
+      const perc = percentageList[i] * 100;
+      newAnimationPercentages.push(perc);
+      //CHOOSE FROM POINTS SOMEHOW BY INCREMENTING I HERE
+    }
+    //const newAnimationPercentages = [0, 0.13, 0.8, 1].map((perc) => perc * 100);
+    let newCSS = `@keyframes ${animationTitle} {`;
+    for (const percentage of newAnimationPercentages) {
+      newCSS += `
+      ${percentage}% {
+        transform: rotate(${(360 / 100) * percentage}deg);
+      }
+      `;
+    }
+    newCSS += `
+  }
+    `;
+    console.log(newCSS);
+    const newInjection: chrome.scripting.CSSInjection = {
+      css: newCSS,
+      target: debugee,
+    };
+    chrome.scripting.insertCSS(newInjection, () => {
+      setInjectedStyles((prevStyles) => [...prevStyles, newInjection]);
+      console.log("Added animation!");
+    });
+  }
+
+  async function injectCSSAnimationClasses(
+    animationClasses: animationPropertyType[],
+    classNames: string[],
+  ) {
+    const ANIMATION_LENGTH = 5;
+    const tab = await getCurrentTab();
+    if (!tab.id && tab.id !== 0) return;
+    const debugee = {
+      tabId: tab.id,
+    };
+
+    let newCSS = ``;
+    //TODO: Grab this from state somewhere idk
+    //const CLASS_NAMES = ["jeff", "bezos", "zuck", "gates"];
+    for (const name of classNames) {
+      newCSS += `
+      ${name} {
+        `;
+      for (const propertyObj of animationClasses) {
+        newCSS += `
+        animation: ${propertyObj.animationName} infinite ${propertyObj.duration};
+        `;
+      }
+      newCSS += `
+    }`;
+    }
+
+    console.log(newCSS);
+    const newInjection: chrome.scripting.CSSInjection = {
+      css: newCSS,
+      target: debugee,
+    };
+    chrome.scripting.insertCSS(newInjection, () => {
+      setInjectedStyles((prevStyles) => [...prevStyles, newInjection]);
+      console.log("Added animation to classes!");
+    });
+  }
+
   async function resetCSS() {
     //const head = window.document.getElementsByTagName("HEAD")[0];
     const tab = await getCurrentTab();
@@ -401,7 +382,7 @@ export function DevToolProvider(props: DevToolProps) {
       const results = Promise.all(
         injectedStyles.map((styleInjection) => {
           (chrome.scripting as any).removeCSS(styleInjection);
-        })
+        }),
       );
       setInjectedStyles([]);
     }
@@ -445,10 +426,8 @@ export function DevToolProvider(props: DevToolProps) {
         injectedStyles,
         injectCSS,
         resetCSS,
-        queryElement,
         attachInspect,
         detachInspect,
-        highlightElement,
         from,
         setFrom,
         to,
@@ -457,6 +436,8 @@ export function DevToolProvider(props: DevToolProps) {
         chosenIDs,
         applyAnimation,
         setChosenClasses,
+        injectCSSAnimation,
+        injectCSSAnimationClasses,
       }}
     >
       {props.children}

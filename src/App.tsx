@@ -14,6 +14,18 @@ import {
 } from "./utils/propertyDataReducer";
 import { Point } from "./types/bezier";
 import { ANIMATABLE_PROPERTIES } from "./components/NewChild";
+import { animationPropertyType } from "./DevToolContext";
+
+const TEST_DATA = [0, 0.13, 0.8, 1];
+
+const TEST_STUFF: animationPropertyType[] = [
+  {
+    animationName: "fun",
+    duration: "4s",
+    value: "yo",
+    direction: "up",
+  },
+];
 
 export default function AppWrapper() {
   return (
@@ -35,6 +47,8 @@ function AppContent() {
     chosenIDs,
     applyAnimation,
     setChosenClasses,
+    injectCSSAnimation,
+    injectCSSAnimationClasses,
   } = useContext(DevToolContext);
   const [propertyData, dispatchPropertyData] = useReducer(
     propertyReducer,
@@ -55,6 +69,7 @@ function AppContent() {
     </span>
   ));
 
+  const chosenClassNames = Object.keys(chosenClasses).map((sect) => "." + sect);
 
   // Quickly calculates the correct bezier points from the starting points
   useEffect(() => {
@@ -72,7 +87,7 @@ function AppContent() {
         property: ANIMATABLE_PROPERTIES.width,
         points: points,
       },
-      timelineId: ANIMATABLE_PROPERTIES.width
+      timelineId: ANIMATABLE_PROPERTIES.width,
     });
 
     dispatchPropertyData({
@@ -124,7 +139,16 @@ function AppContent() {
         </button>
         <div>Chosen IDs: {Object.keys(chosenIDs)}</div>
         <div>Chosen Classes: {chosenClassContainers}</div>
-        <button onClick={() => applyAnimation()}>Apply Animation!</button>
+        <button
+          onClick={() =>
+            injectCSSAnimationClasses(TEST_STUFF, chosenClassNames)
+          }
+        >
+          Apply Animation!
+        </button>
+        <button onClick={() => injectCSSAnimation("fun", TEST_DATA)}>
+          Inject Animation!
+        </button>
       </header>
     </div>
   );
