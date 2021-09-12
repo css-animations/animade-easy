@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import {Labels} from './Labels';
 
 interface Props{
   mouseX: number,
@@ -19,18 +20,8 @@ export function TimeRuler(props: Props){
       else  props.setTime(posToTime(mousex - bounds.x, bounds.width) )
     }
 
-
-    function labels(totalTime:number){
-        let step = totalTime/20;
-        let children = []
-        for (let i = 0; i <= 20; i++) {
-            children.push(<p className="disable-select" style = {{fontSize:"9px", flex:"1"}}>{i*step}</p>)
-        }
-        return children
-    }
-
     return(
-            <div className = "TimeRulerContainer" style = {{width:"400px", height:"40px", backgroundColor:"blue", display:"flex", flexDirection:"row"}}
+            <div className = "TimeRulerContainer" style = {{width:"400px", height:"40px", backgroundColor:"lightpink", display:"flex", flexDirection:"row"}}
                 onMouseDown ={() => props.setScrubberSelected(true)}
                 ref={el => {
                     if (!el) return;
@@ -50,7 +41,7 @@ export function TimeRuler(props: Props){
                 <div className="disable-select" style = {{width:"40px",height:"40px", backgroundColor:"red", position:"absolute", fontSize:"16px", left:`${timeToPos(props.time,bounds.width) + bounds.x -20}px`}}>
                     {100*props.time}%
                 </div>
-                {labels(100)}
+                <Labels  total={40} numTicks={10} ending={"px"} isRow={true}/>
             </div>
     )
 }

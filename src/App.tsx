@@ -12,6 +12,7 @@ import {
 } from "./utils/propertyDataReducer";
 import { Point } from "./types/bezier";
 import { ANIMATABLE_PROPERTIES } from "./components/NewChild";
+import { AnimationPath } from "./components/AnimationPath"
 
 export function App() {
   const [headContent, setHeadContent] = useState("");
@@ -55,26 +56,9 @@ export function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <AnimateProperties />
-        <KeyframeDetails />
-        {propertyData.propertyMetadata.selectedProperty &&
-        propertyData.propertyMetadata.selectedProperty in
-          propertyData.properties ? (
-          <BezierComponent
-            selectedProperty={
-              propertyData.properties[
-                propertyData.propertyMetadata.selectedProperty
-              ] as Property
-            }
-            currentIndex={1}
-            width={400}
-            height={400}
-            timelineId={propertyData.propertyMetadata.selectedProperty}
-            dispatchPropertyData={dispatchPropertyData}
-          />
-        ) : (
-          <div>Select or create a property to view it's curve!</div>
-        )}
+        <AnimateProperties/>
+        <AnimationPath/>
+        <KeyframeDetails/>
         <ExportWindow />
       </header>
     </div>
