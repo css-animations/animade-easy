@@ -115,8 +115,8 @@ export function propertyReducer(state: PropertyData, action: PropertyReducerActi
       let points: Point[] | undefined = action.data?.points;
       if (points === undefined) {
         points = [
-          { x: 20, y: 400 },
-          { x: 100, y: 350 },
+          { x: 50, y: 200 },
+          { x: 100, y: 200 },
           { x: 200, y: 200 },
           { x: 300, y: 80 },
           { x: 400, y: 30 },
