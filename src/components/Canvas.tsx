@@ -1,42 +1,15 @@
 import React, { RefObject, useEffect, useRef, useState } from "react";
-import {
-  computeStartingBezierPoints,
-  setCurvePointByIndex,
-} from "../utils/bezier";
 import { AbsoluteBezierPoint, heldItemData, Point } from "../types/bezier";
+import { Property, PropertyData, PropertyType } from "../types/propertyData";
+import {
+  PropertyReducerActions,
+  PropertyReducerActionTypes,
+} from "../utils/propertyDataReducer";
 
 type CanvasProps = React.DetailedHTMLProps<
   React.CanvasHTMLAttributes<HTMLCanvasElement>,
   HTMLCanvasElement
 >;
-
-const largeCurve = [
-  {
-    pt: { x: 50, y: 50 },
-    ctrlPt1R: { x: 10, y: 10 },
-    ctrlPt2R: { x: -10, y: -10 },
-  },
-  {
-    pt: { x: 150, y: 50 },
-    ctrlPt1R: { x: 30, y: 0 },
-    ctrlPt2R: { x: -30, y: 0 },
-  },
-  {
-    pt: { x: 200, y: 100 },
-    ctrlPt1R: { x: -20, y: -20 },
-    ctrlPt2R: { x: -20, y: -20 },
-  },
-  {
-    pt: { x: 250, y: 50 },
-    ctrlPt1R: { x: -20, y: -20 },
-    ctrlPt2R: { x: 50, y: 50 },
-  },
-  {
-    pt: { x: 300, y: 300 },
-    ctrlPt1R: { x: 20, y: -20 },
-    ctrlPt2R: { x: 20, y: -20 },
-  },
-];
 
 function pointCollision(
   targetPoint: Point,
@@ -128,16 +101,21 @@ function getMousePos(
   });
 }
 
-export function CanvasComponent(props: CanvasProps) {
+interface BezierInterface extends CanvasProps {
+  propertyData: Property;
+  dispatchPropertyData: React.Dispatch<PropertyReducerActions>;
+  currentIndex: number;
+  timelineId: PropertyType;
+}
+
+export function BezierComponent(props: BezierInterface) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mouseDown, setMouseDown] = useState<boolean>(false);
   const [heldIndex, setHeldIndex] = useState<heldItemData | undefined>(
     undefined,
   );
+  // Currently Selected (from system)
   const [coord, setCoord] = useState<Point>({ x: 0, y: 0 });
-  const [curve, setCurve] = useState<AbsoluteBezierPoint[]>([]);
-
-
 
   function handleMouseMove(
     canvasRef: RefObject<HTMLCanvasElement>,
@@ -145,7 +123,11 @@ export function CanvasComponent(props: CanvasProps) {
   ) {
     getMousePos(canvasRef, event, setCoord);
     if (heldIndex !== undefined) {
-      setCurvePointByIndex(heldIndex, coord, setCurve);
+      props.dispatchPropertyData({
+        type: PropertyReducerActionTypes.SET_CURVE_POINT_BY_INDEX,
+        data: { heldIndex, newPoint: coord },
+        timelineId: props.timelineId,
+      });
     }
   }
 
@@ -155,8 +137,8 @@ export function CanvasComponent(props: CanvasProps) {
   ) {
     setMouseDown(true);
     getMousePos(canvasRef, event, setCoord);
-    for (let index = 0; index < curve.length; index++) {
-      const relativeBezierPoint = curve[index];
+    for (let index = 0; index < props.propertyData._keyframes.length; index++) {
+      const relativeBezierPoint = props.propertyData._keyframes[index];
       if (pointCollision(relativeBezierPoint.pt, coord, 10))
         setHeldIndex({ index, field: "pt" });
       else if (pointCollision(relativeBezierPoint.ctrlPt1A, coord, 10))
@@ -171,19 +153,6 @@ export function CanvasComponent(props: CanvasProps) {
     setHeldIndex(undefined);
   }
 
-  // Quickly calculates the correct bezier points from the starting points
-  useEffect(() => {
-    const points: Point[] = [
-      { x: 20, y: 400 },
-      { x: 100, y: 350 },
-      { x: 200, y: 200 },
-      { x: 300, y: 80 },
-      { x: 400, y: 30 },
-    ];
-
-    setCurve(computeStartingBezierPoints(points));
-  }, []);
-
   useEffect(() => {
     const canvas = canvasRef.current as HTMLCanvasElement;
     const context = canvas?.getContext("2d") as CanvasRenderingContext2D;
@@ -193,17 +162,32 @@ export function CanvasComponent(props: CanvasProps) {
       context.clearRect(0, 0, canvas.width, canvas.height);
       context.fillStyle = "#0E2606";
       context.fillRect(0, 0, canvas.width, canvas.height);
-      drawBezier(curve, context);
+      drawBezier(props.propertyData._keyframes, context);
       if (mouseDown && heldIndex !== undefined) {
         switch (heldIndex.field) {
           case "pt":
-            drawDot(context, curve[heldIndex.index].pt, 4, "#0E2606");
+            drawDot(
+              context,
+              props.propertyData._keyframes[heldIndex.index].pt,
+              4,
+              "#0E2606",
+            );
             break;
           case "ctrlPt1A":
-            drawDot(context, curve[heldIndex.index].ctrlPt1A, 4, "#0E2606");
+            drawDot(
+              context,
+              props.propertyData._keyframes[heldIndex.index].ctrlPt1A,
+              4,
+              "#0E2606",
+            );
             break;
           case "ctrlPt2A":
-            drawDot(context, curve[heldIndex.index].ctrlPt2A, 4, "#0E2606");
+            drawDot(
+              context,
+              props.propertyData._keyframes[heldIndex.index].ctrlPt2A,
+              4,
+              "#0E2606",
+            );
             break;
         }
       }
@@ -215,7 +199,7 @@ export function CanvasComponent(props: CanvasProps) {
     return () => {
       window.cancelAnimationFrame(animationFrameId);
     };
-  }, [heldIndex, curve, mouseDown, coord.x, coord.y]);
+  }, [heldIndex, props.propertyData._keyframes, mouseDown, coord.x, coord.y]);
 
   return (
     <canvas

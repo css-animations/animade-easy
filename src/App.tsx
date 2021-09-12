@@ -1,14 +1,22 @@
-import React, { useState, useEffect, useContext } from "react";
-// import { DevToolContext, DevToolProvider } from "./DevToolContext";
-import logo from "./logo.svg";
-import {AnimateProperties} from "./components/AnimateProperties";
+import React, { useState, useEffect, useReducer } from "react";
+import { AnimateProperties } from "./components/AnimateProperties";
 import KeyframeDetails from "./components/KeyframeDetails";
 import "./App.css";
-import {TimelineNav} from "./components/TimelineNav";
+import { BezierComponent } from "./components/Canvas";
+import { Property, PropertyType } from "./types/propertyData";
+import {
+  propertyReducer,
+  PropertyReducerActionTypes,
+  propertyReducerDefaultState,
+} from "./utils/propertyDataReducer";
+import { Point } from "./types/bezier";
 
-function App() {
+export function App() {
   const [headContent, setHeadContent] = useState("");
-  const [classInput, setClassInput] = useState("");
+  const [propertyData, dispatchPropertyData] = useReducer(
+    propertyReducer,
+    propertyReducerDefaultState,
+  );
 
   //grab initial head content onMount
   useEffect(() => {
@@ -16,12 +24,47 @@ function App() {
     setHeadContent(head.innerHTML);
   }, []);
 
+  // Quickly calculates the correct bezier points from the starting points
+  useEffect(() => {
+    const points: Point[] = [
+      { x: 20, y: 400 },
+      { x: 100, y: 350 },
+      { x: 200, y: 200 },
+      { x: 300, y: 80 },
+      { x: 400, y: 30 },
+    ];
+
+    dispatchPropertyData({
+      type: PropertyReducerActionTypes.COMPUTE_STARTING_BEZIER_POINTS,
+      data: { points: points },
+      timelineId: PropertyType.SCALE,
+    });
+  }, []);
+
   return (
     <div className="App">
+      <header className="App-header">
         <AnimateProperties />
         <KeyframeDetails />
+        {propertyData.propertyMetadata.selectedProperty &&
+        propertyData.propertyMetadata.selectedProperty in
+          propertyData.properties ? (
+          <BezierComponent
+            propertyData={
+              propertyData.properties[
+                propertyData.propertyMetadata.selectedProperty
+              ] as Property
+            }
+            currentIndex={1}
+            width={400}
+            height={400}
+            timelineId={propertyData.propertyMetadata.selectedProperty}
+            dispatchPropertyData={dispatchPropertyData}
+          />
+        ) : (
+          <div>Select or create a property to view it's curve!</div>
+        )}
+      </header>
     </div>
   );
 }
-
-export default App;
