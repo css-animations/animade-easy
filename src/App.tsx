@@ -3,6 +3,7 @@ import { AnimateProperties } from "./components/AnimateProperties";
 import KeyframeDetails from "./components/KeyframeDetails";
 import "./App.css";
 import { BezierComponent } from "./components/Canvas";
+import ExportWindow from "./components/ExportWindow";
 import { Property } from "./types/propertyData";
 import {
   propertyReducer,
@@ -65,6 +66,7 @@ export function App() {
         ) : (
           <div>Select or create a property to view it's curve!</div>
         )}
+        <ExportWindow />
       </header>
     </div>
   );
