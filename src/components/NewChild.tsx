@@ -6,6 +6,7 @@ import { PropertyDataContext, PropertyDataProvider } from "./PropertyDataContext
 import { PropertyReducerActionTypes } from "../utils/propertyDataReducer";
 import { AnimationOptions } from "../types/propertyData";
 import { Point } from "../types/bezier";
+import { isOptionalTypeNode } from "typescript";
 
 export enum NewChildPropTypes {
   PROPERTY = "property",
@@ -129,10 +130,8 @@ function NewChild(props: NewChildProps) {
       stringIsAnimationOption(name)
     ) {
       dispatchPropertyData({
-        type: PropertyReducerActionTypes.SET_ANIMATION_OPTIONS,
-        data: {
-          animationOptions: {},
-        },
+        type: PropertyReducerActionTypes.MODIFY_ANIMATION_OPTIONS,
+        data: { [name]: null },
         timelineId: propertyData.propertyMetadata.selectedProperty,
       });
       props.setChildren([...props.children, name]);
