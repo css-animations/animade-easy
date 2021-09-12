@@ -5,7 +5,7 @@ import { AnimationDirections, AnimationFillMode, OptionType } from "../types/pro
 import { ANIMATION_OPTION } from "./NewChild";
 
 interface OptionProps {
-  name: string;
+  name: OptionType;
   value: AnimationDirections | AnimationFillMode;
   // possibleValues: string[];
   // setValue: React.Dispatch<React.SetStateAction<string[]>>;
