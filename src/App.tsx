@@ -58,6 +58,7 @@ function AppContent() {
   return (
     <div className="App">
       <header className="App-header">
+        <div className = "buttonWrapper"><button className="AttachAnimation">AttachAnimation</button></div>
         <AnimateProperties/>
         <AnimationPath/>
         <KeyframeDetails/>
