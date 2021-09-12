@@ -14,8 +14,8 @@ export function TimeRuler(props: Props){
     const [bounds, setBounds] = useState({x:20,width:20})
     var leftBound = bounds.x;
     var rightBound = bounds.x + bounds.width;
-    
-    
+
+
 
     function bounder(clicked:any){
         let loc = 0;
@@ -26,7 +26,7 @@ export function TimeRuler(props: Props){
         }
         if (loc<leftBound) loc = leftBound;
         if (loc>rightBound) loc = rightBound;
-        return `${loc}px` 
+        return `${loc}px`
     }
 
     function labels(totalTime:number){
@@ -38,14 +38,14 @@ export function TimeRuler(props: Props){
         return children
     }
     return(
-        <div style = {{width:"500px",height:"100px", backgroundColor:"green"}} 
+        <div style = {{width:"500px",height:"100px", backgroundColor:"green"}}
             onMouseUp = {() => {setClicked(false); setLocation(mousex-20)}}
             onMouseLeave = {() => {if(clicked){setClicked(false); setLocation(mousex-20)}}}>
             <div className = "TimeRulerContainer" style = {{width:"400px", height:"40px", backgroundColor:"blue", display:"flex", flexDirection:"row"}}
                 onMouseDown ={() => setClicked(true)}
                 ref={el => {
                     if (!el) return;
-                    console.log("initial width", el.getBoundingClientRect().width);
+                    // console.log("initial width", el.getBoundingClientRect().width);
                     let prevValue = JSON.stringify(el.getBoundingClientRect());
                     const handle = setInterval(() => {
                       let nextValue = JSON.stringify(el.getBoundingClientRect());

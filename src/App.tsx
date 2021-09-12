@@ -36,12 +36,21 @@ export function App() {
     ];
 
     dispatchPropertyData({
+      type: PropertyReducerActionTypes.CREATE_NEW_PROPERTY,
+      data: {
+        property: ANIMATABLE_PROPERTIES.width,
+        animationOptions: {},
+        points: points,
+      },
+      timelineId: ANIMATABLE_PROPERTIES.width
+    });
+
+    dispatchPropertyData({
       type: PropertyReducerActionTypes.COMPUTE_STARTING_BEZIER_POINTS,
       data: { points: points },
-      timelineId: ANIMATABLE_PROPERTIES.scale,
+      timelineId: ANIMATABLE_PROPERTIES.width,
     });
   }, []);
-
   return (
     <div className="App">
       <header className="App-header">
@@ -51,7 +60,7 @@ export function App() {
         propertyData.propertyMetadata.selectedProperty in
           propertyData.properties ? (
           <BezierComponent
-            propertyData={
+            selectedProperty={
               propertyData.properties[
                 propertyData.propertyMetadata.selectedProperty
               ] as Property
