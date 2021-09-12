@@ -9,7 +9,7 @@ export enum AnimationDirections {
   "normal" = "normal",
   "reverse" = "reverse",
   "alternate" = "alternate",
-  "alternate-reverse" = "alternnate-reverse",
+  "alternate_reverse" = "alternate_reverse",
 }
 
 export enum AnimationFillMode {
@@ -18,6 +18,8 @@ export enum AnimationFillMode {
   "backwards" = "backwards",
   "both" = "both",
 }
+
+export type OptionType = keyof AnimationOptions;
 
 export interface AnimationOptions {
   animation_direction?: AnimationDirections;
