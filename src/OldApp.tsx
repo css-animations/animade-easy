@@ -153,9 +153,6 @@ function AppContent() {
           value={classInput}
           onChange={(event) => setClassInput(event.target.value)}
         />
-        <button onClick={() => injectCSSAnimation(TEST_TYPE, TEST_DATA)}>
-          Inject Animation!
-        </button>
         <div>
           Generated Animations:{" "}
           {injectedAnimations.map((sect) => sect.animationName)}

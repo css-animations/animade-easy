@@ -50,7 +50,7 @@ export function AnimationPath() {
       console.log({ things: Object.keys(propertyData.properties) });
       for (const propertyDatumKey of Object.keys(propertyData.properties)) {
         // @ts-ignore
-        console.log(propertyData.properties[propertyDatumKey].animationOptions)
+        const lut = CreateLUT(propertyData.properties[propertyDatumKey]._keyframes);
         const animationClass = {
           // @ts-ignore
           ...propertyData.properties[propertyDatumKey].animationOptions,
@@ -62,7 +62,8 @@ export function AnimationPath() {
         injectCSSAnimation(
           animationClass,
           // @ts-ignore
-          CreateLUT(propertyData.properties[propertyDatumKey]._keyframes).map((value) => -(value.y / 300) + 1),
+          lut.map((value) => (value.t)),
+          lut.map((value) => -(value.y / 300) + 1),
         );
       }
       const chosenClassNames =
@@ -72,7 +73,7 @@ export function AnimationPath() {
       const chosenIDNames =
         Object.keys(chosenIDs).length > 0 ? Object.keys(chosenIDs).map((sect) => "#" + sect) : [];
       const selectors = [...chosenClassNames, ...chosenIDNames];
-      injectCSSAnimationClasses(animationClasses, selectors) ;
+      injectCSSAnimationClasses(animationClasses, selectors);
     }
     setPlaying(!playing);
   };

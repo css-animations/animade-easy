@@ -1,12 +1,18 @@
-import React, {useState} from "react";
+import React, { useContext, useState } from "react";
 import IconButton from '@material-ui/core/IconButton'
 import FileCopyIcon from '@material-ui/icons/FileCopy';
+import { DevToolContext } from "../DevToolContext";
 
 function ExportWindow() {
-    const [text, setText] = useState('The quick brown fox jumped over the lazy dog.')
+  const { exportedCSS } = useContext(DevToolContext);
+  const [text, setText] = useState('Your css will appear here!')
+
+  // if (exportedCSS !== '') {
+  //   setText(exportedCSS)
+  // }
 
     const handleCopy = () => {
-        navigator.clipboard.writeText(text);
+        navigator.clipboard.writeText(exportedCSS);
     }
 
     return (
@@ -17,7 +23,7 @@ function ExportWindow() {
                 <FileCopyIcon />
             </IconButton>
             </div>
-            {text}
+            {exportedCSS}
         </div>
     );
 }

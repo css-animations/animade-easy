@@ -23,7 +23,7 @@ export function AppWrapper() {
 function AppContent() {
   const [headContent, setHeadContent] = useState("");
   const { propertyData, dispatchPropertyData } = useContext(PropertyDataContext);
-  const { attachInspect, chosenClasses, chosenIDs } = useContext(DevToolContext);
+  const { attachInspect, setChosenClasses, chosenClasses } = useContext(DevToolContext);
 
   //grab initial head content onMount
   useEffect(() => {
@@ -57,16 +57,36 @@ function AppContent() {
       timelineId: ANIMATABLE_PROPERTIES.width,
     });
   }, []);
+
+  const chosenClassContainers = Object.keys(chosenClasses).map((sect) => (
+    <span
+      style={{
+        margin: "5px",
+        fontSize: '20px',
+        cursor: 'pointer'
+      }}
+      onClick={() => {
+        setChosenClasses((prevClasses) => {
+          const newClasses: any = { ...prevClasses };
+          delete newClasses[sect];
+          return newClasses;
+        });
+      }}
+    >
+      {sect}
+    </span>
+  ));
   return (
     <div className="App">
       <header className="App-header">
         <div className="buttonWrapper">
-          <button className="AttachAnimation" onClick={() => attachInspect()}>AttachAnimation</button>
+          <button className="AttachAnimation" onClick={() => attachInspect()}>Attach Animation</button>
         </div>
-        <div></div>
         <AnimateProperties />
         <AnimationPath />
-        <KeyframeDetails />
+        {/*<KeyframeDetails />*/}
+        <h3>Chosen Classes: (click to remove)</h3>
+        <div>{chosenClassContainers}</div>
         <ExportWindow />
       </header>
     </div>

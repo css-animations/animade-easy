@@ -41,7 +41,7 @@ interface DevToolContextType {
   chosenClasses: {};
   setChosenClasses: React.Dispatch<React.SetStateAction<{}>>;
   chosenIDs: {};
-  injectCSSAnimation: (animationObj: AnimationPropertyType, percentageList: number[]) => void;
+  injectCSSAnimation: (animationObj: AnimationPropertyType, percentageList: number[], powerList: number[]) => void;
   injectedAnimations: AnimationPropertyType[];
   injectCSSAnimationClasses: (
     animationClasses: AnimationPropertyType[],
@@ -63,7 +63,7 @@ const defaultDevContext: DevToolContextType = {
   chosenClasses: {},
   setChosenClasses: () => {},
   chosenIDs: {},
-  injectCSSAnimation: (animationObj: AnimationPropertyType, percentageList: number[]) => {},
+  injectCSSAnimation: (animationObj: AnimationPropertyType, percentageList: number[], powerList: number[]) => {},
   injectCSSAnimationClasses: (
     animationClasses: AnimationPropertyType[],
     classNames: string[],
@@ -290,7 +290,7 @@ export function DevToolProvider(props: DevToolProps) {
   }
 
   //function to inject CSS Animation
-  async function injectCSSAnimation(animationObj: AnimationPropertyType, percentageList: number[]) {
+  async function injectCSSAnimation(animationObj: AnimationPropertyType, percentageList: number[], powerList: number[]) {
     const tab = await getCurrentTab();
     if (!tab.id && tab.id !== 0) return;
     const debugee = {
@@ -307,12 +307,14 @@ export function DevToolProvider(props: DevToolProps) {
       //CHOOSE FROM POINTS SOMEHOW BY INCREMENTING I HERE
     }
     let newCSS = `@keyframes ${animationObj.animationName} {`;
-    for (const percentage of newAnimationPercentages) {
+    for (let i = 0; i < newAnimationPercentages.length; i++){
+      const percentage = newAnimationPercentages[i];
+      const power = powerList[i];
       newCSS += `
       ${percentage}% {`;
       for (const property of animationObj.animationTypes) {
         newCSS += `
-        ${property.formatFunction(75)}`;
+        ${property.formatFunction(power)}`;
       }
       newCSS += `
     }
