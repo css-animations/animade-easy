@@ -353,7 +353,7 @@ export function DevToolProvider(props: DevToolProps) {
       }
     }
     ${chosenSelector} {
-      animation: spinny infinite 2s linear;
+      animation: spinny infinite ${(2 * (to - from)) / 100}s linear;
     }
     `;
 
