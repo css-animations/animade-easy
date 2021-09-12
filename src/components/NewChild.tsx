@@ -102,8 +102,8 @@ function NewChild(props: NewChildProps) {
   const handlePropertySubmit = () => {
     if (name !== undefined && stringIsAnimatableProperty(name)) {
       const points: Point[] = [
-        { x: 20, y: 400 },
-        { x: 100, y: 350 },
+        { x: 20, y: 300 },
+        { x: 100, y: 250 },
         { x: 200, y: 200 },
         { x: 300, y: 80 },
         { x: 400, y: 30 },
@@ -141,7 +141,7 @@ function NewChild(props: NewChildProps) {
   };
 
   const body = (
-    <div>
+    <div style={{ backgroundColor: "#FFF", position: "absolute", top: "15%", left: "25%" }}>
       <select
         value={name}
         onChange={(event) => {
