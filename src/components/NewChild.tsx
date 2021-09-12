@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import IconButton from "@material-ui/core/IconButton";
 import AddIcon from "@material-ui/icons/Add";
 import Modal from "@material-ui/core/Modal";
+import { PropertyDataContext, PropertyDataProvider } from "./PropertyDataContext";
+import { PropertyReducerActionTypes } from "../utils/propertyDataReducer";
+import { AnimationOptions } from "../types/propertyData";
+import { Point } from "../types/bezier";
 
 export enum NewChildPropTypes {
   PROPERTY = "property",
-  ANIMATION_OPTION = "animation_option"
+  ANIMATION_OPTION = "animation_option",
 }
 
 interface NewChildProps {
@@ -48,20 +52,35 @@ export enum ANIMATABLE_PROPERTIES {
   "width" = "width",
   "word-spacing" = "word-spacing",
   "z-index" = "z-index",
-};
+}
+
+export enum ANIMATION_OPTION {
+  "animation_direction" = "animation_direction",
+  "animation_fill_mode" = "animation_fill_mode",
+  "animation_iteration_count" = "animation_iteration_count",
+}
+
+function stringIsAnimatableProperty(name: string): name is ANIMATABLE_PROPERTIES {
+  return name in ANIMATABLE_PROPERTIES;
+}
+
+function stringIsAnimationOption(name: string): name is ANIMATION_OPTION {
+  return name in ANIMATION_OPTION;
+}
 
 function NewChild(props: NewChildProps) {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
+  const [name, setName] = useState<ANIMATABLE_PROPERTIES | ANIMATION_OPTION>();
+  const { propertyData, dispatchPropertyData } = useContext(PropertyDataContext);
 
-  let selections: ANIMATABLE_PROPERTIES[] = [];
+  let selections: ANIMATABLE_PROPERTIES[] | ANIMATION_OPTION[] = [];
 
   switch (props.type) {
     case "property":
       selections = Object.values(ANIMATABLE_PROPERTIES);
       break;
     case "animation_option":
-      selections = [ANIMATABLE_PROPERTIES.height, ANIMATABLE_PROPERTIES.width];
+      selections = Object.values(ANIMATION_OPTION);
       break;
     default:
       selections = [];
@@ -75,16 +94,50 @@ function NewChild(props: NewChildProps) {
     setOpen(false);
   };
 
-  const handleNameChange = (newName: string) => {
+  const handleNameChange = (newName: ANIMATABLE_PROPERTIES | ANIMATION_OPTION) => {
     setName(newName);
   };
 
-  const handleSubmit = () => {
-    console.log(name);
-    if (name !== "") {
+  const handlePropertySubmit = () => {
+    if (name !== undefined && stringIsAnimatableProperty(name)) {
+      const points: Point[] = [
+        { x: 20, y: 400 },
+        { x: 100, y: 350 },
+        { x: 200, y: 200 },
+        { x: 300, y: 80 },
+        { x: 400, y: 30 },
+      ];
+      dispatchPropertyData({
+        type: PropertyReducerActionTypes.CREATE_NEW_PROPERTY,
+        data: {
+          property: name,
+          animationOptions: {},
+          points: points,
+        },
+        timelineId: name,
+      });
       props.setChildren([...props.children, name]);
       setOpen(false);
-      setName("");
+      setName(undefined);
+    }
+  };
+
+  const handleAnimationSubmit = () => {
+    if (
+      name !== undefined &&
+      propertyData.propertyMetadata.selectedProperty !== undefined &&
+      stringIsAnimationOption(name)
+    ) {
+      dispatchPropertyData({
+        type: PropertyReducerActionTypes.SET_ANIMATION_OPTIONS,
+        data: {
+          animationOptions: {},
+        },
+        timelineId: propertyData.propertyMetadata.selectedProperty,
+      });
+      props.setChildren([...props.children, name]);
+      setOpen(false);
+      setName(undefined);
     }
   };
 
@@ -92,7 +145,14 @@ function NewChild(props: NewChildProps) {
     <div>
       <select
         value={name}
-        onChange={(event) => handleNameChange(event.target.value)}
+        onChange={(event) => {
+          if (
+            stringIsAnimatableProperty(event.target.value) ||
+            stringIsAnimationOption(event.target.value)
+          ) {
+            handleNameChange(event.target.value);
+          }
+        }}
       >
         <option hidden> -- select an option -- </option>
         {selections.map((selection, index) => {
@@ -103,7 +163,9 @@ function NewChild(props: NewChildProps) {
           );
         })}
       </select>
-      <button onClick={handleSubmit}>Submit</button>
+      <button onClick={props.type === "property" ? handlePropertySubmit : handleAnimationSubmit}>
+        Submit
+      </button>
     </div>
   );
 

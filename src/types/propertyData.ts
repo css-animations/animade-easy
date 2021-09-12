@@ -1,23 +1,28 @@
 import {} from "react-dom";
 import { AbsoluteBezierPoint, Point } from "./bezier";
 import { setCurvePointByIndex } from "../utils/bezier";
-import {
-  PropertyReducerActions,
-  PropertyReducerActionTypes,
-} from "../utils/propertyDataReducer";
+import { PropertyReducerActions, PropertyReducerActionTypes } from "../utils/propertyDataReducer";
 import React from "react";
 import { ANIMATABLE_PROPERTIES } from "../components/NewChild";
 
-enum AnimationDirections {}
+export enum AnimationDirections {
+  "normal" = "normal",
+  "reverse" = "reverse",
+  "alternate" = "alternate",
+  "alternate-reverse" = "alternnate-reverse",
+}
 
-enum AnimationFillMode {}
-
-enum AnimationIterationCount {}
+export enum AnimationFillMode {
+  "none" = "none",
+  "forwards" = "forwards",
+  "backwards" = "backwards",
+  "both" = "both",
+}
 
 export interface AnimationOptions {
   animation_direction?: AnimationDirections;
   animation_fill_mode?: AnimationFillMode;
-  animation_iteration_count?: AnimationIterationCount;
+  animation_iteration_count?: number | "infinite";
 }
 
 interface TimelineState {}
@@ -27,7 +32,6 @@ class PropertyFunctions {
   static bezierHeight: number;
 
   /// Get the percent (0-1) from a state
-
 
   /// Set the percent (from 0-1) that a keyframe animation should be
 

@@ -42,15 +42,15 @@ function AppContent() {
       { x: 400, y: 30 },
     ];
 
-    dispatchPropertyData({
-      type: PropertyReducerActionTypes.CREATE_NEW_PROPERTY,
-      data: {
-        property: ANIMATABLE_PROPERTIES.width,
-        animationOptions: {},
-        points: points,
-      },
-      timelineId: ANIMATABLE_PROPERTIES.width,
-    });
+    // dispatchPropertyData({
+    //   type: PropertyReducerActionTypes.CREATE_NEW_PROPERTY,
+    //   data: {
+    //     property: ANIMATABLE_PROPERTIES.width,
+    //     animationOptions: {},
+    //     points: points,
+    //   },
+    //   timelineId: ANIMATABLE_PROPERTIES.width,
+    // });
 
     dispatchPropertyData({
       type: PropertyReducerActionTypes.COMPUTE_STARTING_BEZIER_POINTS,

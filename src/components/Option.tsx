@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { PropertyDataContext, PropertyDataProvider } from "./PropertyDataContext";
+import { PropertyReducerActionTypes } from "../utils/propertyDataReducer";
+import { AnimationDirections, AnimationFillMode } from "../types/propertyData";
 
 interface OptionProps {
   name: string;
@@ -10,9 +13,16 @@ interface OptionProps {
 function Option(props: OptionProps) {
   const values = ["1", "2", "3"];
   const [value, setValue] = useState(props.value);
+  const { propertyData, dispatchPropertyData } = useContext(PropertyDataContext);
 
   const handleValueChange = (newValue: typeof value) => {
     setValue(newValue);
+    // dispatchPropertyData({
+    //   type: PropertyReducerActionTypes.SET_ANIMATION_VALUE;
+    //   data: {
+    //     animationOptions: {props.name: value}
+    //   }
+    // })
   };
 
   return (
