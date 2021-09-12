@@ -1,4 +1,4 @@
-import { computeStartingBezierPoints, setCurvePointByIndex } from "./bezier";
+import { computeStartingBezierPoints, DropNewPoint, setCurvePointByIndex } from "./bezier";
 import { AnimationOptions, PropertyData } from "../types/propertyData";
 import { AbsoluteBezierPoint, heldItemData, Point } from "../types/bezier";
 import { ANIMATABLE_PROPERTIES, ANIMATION_OPTION } from "../components/NewChild";
@@ -14,6 +14,7 @@ export enum PropertyReducerActionTypes {
   MODIFY_ANIMATION_OPTIONS = "MODIFY_ANIMATION_OPTIONS",
   SET_DEFAULT_CURVE = "SET_DEFAULT_CURVE",
   SET_ANIMATION_VALUE = "SET_ANIMATION_VALUE",
+  SET_DURATION = "SET_DURATION",
 }
 
 interface GeneralPropertyReducerActions {
@@ -78,9 +79,14 @@ interface SET_ANIMATION_VALUE extends GeneralPropertyReducerActions {
 
 interface CREATE_NEW_KEYFRAME extends GeneralPropertyReducerActions {
   type: PropertyReducerActionTypes.CREATE_NEW_KEYFRAME;
-  data: {
-    horizontalPosition: number;
-  };
+  data:
+    | {
+        horizontalPixels: number;
+      }
+    | {
+        horizontalPercentage: number;
+        bezierWidth: number;
+      };
 }
 
 export type PropertyReducerActions =
@@ -90,8 +96,8 @@ export type PropertyReducerActions =
   | CREATE_NEW_PROPERTY
   | SET_SELECTED_PROPERTY
   | SET_ANIMATION_OPTIONS
-  | SET_ANIMATION_VALUE;
-// | CREATE_NEW_KEYFRAME;
+  | SET_ANIMATION_VALUE
+  | CREATE_NEW_KEYFRAME;
 
 export function propertyReducer(state: PropertyData, action: PropertyReducerActions): PropertyData {
   switch (action.type) {
@@ -190,6 +196,28 @@ export function propertyReducer(state: PropertyData, action: PropertyReducerActi
       }
       return state;
     // case PropertyReducerActionTypes.CREATE_NEW_KEYFRAME:
+    case PropertyReducerActionTypes.SET_SELECTED_PROPERTY:
+      return {
+        ...state,
+        propertyMetadata: {
+          selectedProperty: action.data.property,
+        },
+      };
+    case PropertyReducerActionTypes.CREATE_NEW_KEYFRAME:
+      let xPos: number;
+      if ("horizontalPercentage" in action.data)
+        xPos = action.data.horizontalPercentage * action.data.bezierWidth;
+      else xPos = action.data.horizontalPixels;
+      return {
+        ...state,
+        properties: {
+          ...state.properties,
+          [action.timelineId]: {
+            // @ts-ignore
+            _keyframes: DropNewPoint(state.properties[action.timelineId]._keyframes, xPos),
+          },
+        },
+      };
   }
 }
 
