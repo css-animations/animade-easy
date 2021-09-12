@@ -4,16 +4,7 @@ import {
   Point,
   RelativeBezierPoint,
 } from "../types/bezier";
-import React from "react";
-import {
-  GenRotMat,
-  unitVector,
-  m_mul_22x21,
-  magnitude,
-  PointTo21,
-  TwoOneToPoint,
-  vec, neg, vecMul, pt,
-} from "./vectors";
+import { magnitude, neg, pt, unitVector, vec, vecMul } from "./vectors";
 
 function getControlPoints(
   zero: Point,
@@ -166,65 +157,125 @@ export function GetAbsolutePoint(center: Point, relPoint: Point): Point {
 export function setCurvePointByIndex(
   heldIndex: heldItemData,
   newPoint: Point,
-  setCurve: React.Dispatch<React.SetStateAction<AbsoluteBezierPoint[]>>,
-) {
+  prevCurve: AbsoluteBezierPoint[],
+): AbsoluteBezierPoint[] {
   switch (heldIndex.field) {
     case "pt":
-      setCurve((prevCurve) =>
-        prevCurve.map((pt, ind) => {
-          if (ind === heldIndex.index) {
-            const delta_x = pt.pt.x - newPoint.x;
-            const delta_y = pt.pt.y - newPoint.y;
-            return {
-              pt: newPoint,
-              ctrlPt1A: {
-                x: pt.ctrlPt1A.x - delta_x,
-                y: pt.ctrlPt1A.y - delta_y,
-              },
-              ctrlPt2A: {
-                x: pt.ctrlPt2A.x - delta_x,
-                y: pt.ctrlPt2A.y - delta_y,
-              },
-            };
-          } else return pt;
-        }),
-      );
-      break;
+      return prevCurve.map((pt, ind) => {
+        if (ind === heldIndex.index) {
+          const delta_x = pt.pt.x - newPoint.x;
+          const delta_y = pt.pt.y - newPoint.y;
+          return {
+            pt: newPoint,
+            ctrlPt1A: {
+              x: pt.ctrlPt1A.x - delta_x,
+              y: pt.ctrlPt1A.y - delta_y,
+            },
+            ctrlPt2A: {
+              x: pt.ctrlPt2A.x - delta_x,
+              y: pt.ctrlPt2A.y - delta_y,
+            },
+          };
+        } else return pt;
+      });
+    // Orange
     case "ctrlPt1A":
-      setCurve((prevCurve) =>
-        prevCurve.map((prevPoint, ind) => {
-          if (ind === heldIndex.index) {
-            const { ctrlPt2R: drivenPoint } = GetRelativeBezierPoint(prevPoint);
-            const relCurrentPt = GetRelativePoint(prevPoint.pt, newPoint);
-            const newPointUnitVector = unitVector(vec(relCurrentPt));
-            const drivenPointMag = magnitude(vec(drivenPoint));
-            const newDrivenPoint = pt(vecMul(neg(newPointUnitVector), drivenPointMag));
-            return {
-              pt: prevPoint.pt,
-              ctrlPt1A: newPoint,
-              ctrlPt2A: GetAbsolutePoint(prevPoint.pt, newDrivenPoint),
-            };
-          } else return prevPoint;
-        }),
-      );
-      break;
+      return prevCurve.map((prevPoint, ind) => {
+        if (ind === heldIndex.index) {
+          const { ctrlPt2R: drivenPoint } = GetRelativeBezierPoint(prevPoint);
+          const relCurrentPt = GetRelativePoint(prevPoint.pt, newPoint);
+          const newPointUnitVector = unitVector(vec(relCurrentPt));
+          const drivenPointMag = magnitude(vec(drivenPoint));
+          const newDrivenPoint = pt(
+            vecMul(neg(newPointUnitVector), drivenPointMag),
+          );
+          return {
+            pt: prevPoint.pt,
+            ctrlPt1A: newPoint,
+            ctrlPt2A: GetAbsolutePoint(prevPoint.pt, newDrivenPoint),
+          };
+        } else return prevPoint;
+      });
     case "ctrlPt2A":
-      setCurve((prevCurve) =>
-        prevCurve.map((prevPoint, ind) => {
-          if (ind === heldIndex.index) {
-            const { ctrlPt1R: drivenPoint } = GetRelativeBezierPoint(prevPoint);
-            const relCurrentPt = GetRelativePoint(prevPoint.pt, newPoint);
-            const newPointUnitVector = unitVector(vec(relCurrentPt));
-            const drivenPointMag = magnitude(vec(drivenPoint));
-            const newDrivenPoint = pt(vecMul(neg(newPointUnitVector), drivenPointMag));
-            return {
-              pt: prevPoint.pt,
-              ctrlPt2A: newPoint,
-              ctrlPt1A: GetAbsolutePoint(prevPoint.pt, newDrivenPoint),
-            };
-          } else return prevPoint;
-        }),
-      );
-      break;
+      return prevCurve.map((prevPoint, ind) => {
+        if (ind === heldIndex.index) {
+          const { ctrlPt1R: drivenPoint } = GetRelativeBezierPoint(prevPoint);
+          const relCurrentPt = GetRelativePoint(prevPoint.pt, newPoint);
+          const newPointUnitVector = unitVector(vec(relCurrentPt));
+          const drivenPointMag = magnitude(vec(drivenPoint));
+          const newDrivenPoint = pt(
+            vecMul(neg(newPointUnitVector), drivenPointMag),
+          );
+          return {
+            pt: prevPoint.pt,
+            ctrlPt2A: newPoint,
+            ctrlPt1A: GetAbsolutePoint(prevPoint.pt, newDrivenPoint),
+          };
+        } else return prevPoint;
+      });
   }
+}
+
+// function getAtPoint(curve: AbsoluteBezierPoint[]): Point
+//
+// export function generateCurveLUT(curve: AbsoluteBezierPoint[], context: CanvasRenderingContext2D) {
+//
+// }
+
+export function GetPointAtT(
+  t: number,
+  leftPoint: AbsoluteBezierPoint,
+  rightPoint: AbsoluteBezierPoint,
+): Point {
+  const t0 = -(t * t * t) + 3 * t * t - 3 * t + 1;
+  const t1 = 3 * t * t * t - 6 * t * t + 3 * t;
+  const t2 = -(3 * t * t * t) + 3 * t * t;
+  const t3 = t * t * t;
+  return {
+    x:
+      leftPoint.pt.x * t0 +
+      leftPoint.ctrlPt2A.x * t1 +
+      rightPoint.ctrlPt1A.x * t2 +
+      rightPoint.pt.x * t3,
+    y:
+      leftPoint.pt.y * t0 +
+      leftPoint.ctrlPt2A.y * t1 +
+      rightPoint.ctrlPt1A.y * t2 +
+      rightPoint.pt.y * t3,
+  };
+}
+
+export function CreateLUT(
+  curve: AbsoluteBezierPoint[],
+  context: CanvasRenderingContext2D,
+) {
+  const pointArr: Point[] = [];
+  for (let i = 0; i < curve.length - 1; i++) {
+    for (let j = 1; j < 10; j++) {
+      const point = GetPointAtT(j / 10, curve[i], curve[i + 1]);
+      pointArr.push(point);
+      drawDot(context, point, 4, "blue");
+    }
+  }
+  return pointArr;
+}
+
+// Drops a point on the bezier curve array exactly in place where it should be,
+// without disrupting the existing curve
+export function DropNewPoint(xPos: number): AbsoluteBezierPoint[] {
+  // TODO: Determine y position
+  // TODO: Determine the drag handle position without recomputing whole path
+  return [];
+}
+
+export function drawDot(
+  context: CanvasRenderingContext2D,
+  point: Point,
+  size: number,
+  color: string | CanvasGradient | CanvasPattern,
+) {
+  context.fillStyle = color;
+  context.beginPath();
+  context.arc(point.x, point.y, size, 0, Math.PI * 2, true);
+  context.fill();
 }

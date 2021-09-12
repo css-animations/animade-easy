@@ -36,7 +36,7 @@ export function TimeRuler(props: Props){
                 onMouseDown ={() => props.setScrubberSelected(true)}
                 ref={el => {
                     if (!el) return;
-                    console.log("initial width", el.getBoundingClientRect().width);
+                    // console.log("initial width", el.getBoundingClientRect().width);
                     let prevValue = JSON.stringify(el.getBoundingClientRect());
                     const handle = setInterval(() => {
                       let nextValue = JSON.stringify(el.getBoundingClientRect());

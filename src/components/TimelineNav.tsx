@@ -3,6 +3,7 @@ import {TimeRuler} from "./TimeRuler";
 
 import IconButton from "@material-ui/core/IconButton";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
+import PauseIcon from '@material-ui/icons/Pause';
 import LoopIcon from '@material-ui/icons/Loop';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
@@ -15,20 +16,38 @@ interface Props{
 }
 export function TimelineNav(props: Props){
     const [time, setTime] = useState(0);
+    const [playing, setPlaying] = useState(false);
+    const [loop, setLoop] = useState(false);
+
+    const togglePlay = () => {
+        setPlaying(!playing);
+    }
+
+    const toggleLoop = () => {
+        setLoop(!loop);
+    }
+
+    const handleSkipForward = () =>{
+        setTime(time + 1);
+    }
+
+    const handleRewind = () => {
+        setTime(time - 1);
+    }
     
     return(
         <div className="TimelineNav">TimelineNav
             <div>
-                <IconButton>
-                    <PlayArrowIcon />
+                <IconButton onClick={togglePlay}>
+                    {playing ? <PauseIcon /> : <PlayArrowIcon />}
                 </IconButton>
-                <IconButton>
+                <IconButton onClick={toggleLoop}>
                     <LoopIcon />
                 </IconButton>
-                <IconButton>
+                <IconButton onClick={handleRewind}>
                     <ArrowBackIcon />
                 </IconButton>
-                <IconButton>
+                <IconButton onClick={handleSkipForward}>
                     <ArrowForwardIcon />
                 </IconButton>
             </div>
