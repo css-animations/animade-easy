@@ -14,19 +14,21 @@ interface RowProps {
   propertyName: string;
 }
 
-
 function Row(props: RowProps) {
-  const [open, setOpen] = useState(false);
-
   return (
-  <TableRow>
-    <TableCell align="left" style={{border: 1, borderStyle: 'solid', borderLeft: 'none', borderColor: '#599E40'}}>
-      <Property key={props.index} name={props.propertyName} />
-    </TableCell>
-    <TableCell align="center" style={{border: 1, borderStyle: 'solid', borderRight: 'none', borderColor: '#599E40'}}>
-      Keyframes
-    </TableCell>
-  </TableRow>);
+    <TableRow>
+      <TableCell
+        align="left"
+        style={{
+          border: 1,
+          borderStyle: "solid",
+          borderColor: "#599E40",
+        }}
+      >
+        <Property key={props.index} name={props.propertyName} />
+      </TableCell>
+    </TableRow>
+  );
 }
 
 function PropertyList() {
@@ -37,9 +39,8 @@ function PropertyList() {
       <TableContainer>
         <TableBody>
           {propertiesArray.map((propertyName, index) => {
-          return (
-            <Row index={index} propertyName={propertyName} />
-          );})}
+            return <Row index={index} propertyName={propertyName} />;
+          })}
         </TableBody>
       </TableContainer>
       <NewChild

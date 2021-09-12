@@ -3,7 +3,7 @@ import { AbsoluteBezierPoint, heldItemData, Point } from "../types/bezier";
 import { Property, PropertyData } from "../types/propertyData";
 import { PropertyReducerActions, PropertyReducerActionTypes } from "../utils/propertyDataReducer";
 import { ANIMATABLE_PROPERTIES } from "./NewChild";
-import { drawDot, GetPointAtT, CreateLUT } from "../utils/bezier";
+import { drawDot, GetPointAtT, CreateLUT, AbsoluteLutToPercent } from "../utils/bezier";
 import { PropertyDataContext } from "./PropertyDataContext";
 
 type CanvasProps = React.DetailedHTMLProps<
@@ -64,10 +64,11 @@ function drawBezier(curves: AbsoluteBezierPoint[], context: CanvasRenderingConte
   }
   context.stroke();
   context.closePath();
-
-  for (const point of CreateLUT(curves)) {
-    drawDot(context, point, 5, "blue");
-  }
+  // const lutList = CreateLUT(curves);
+  // console.log(AbsoluteLutToPercent(lutList, 1000, 1000));
+  // for (const point of lutList) {
+  //   drawDot(context, point, 5, "blue");
+  // }
 }
 
 function getMousePos(
