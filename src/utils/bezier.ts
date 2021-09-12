@@ -166,12 +166,11 @@ export function GetAbsolutePoint(center: Point, relPoint: Point): Point {
 export function setCurvePointByIndex(
   heldIndex: heldItemData,
   newPoint: Point,
-  setCurve: React.Dispatch<React.SetStateAction<AbsoluteBezierPoint[]>>,
-) {
+  prevCurve: AbsoluteBezierPoint[],
+): AbsoluteBezierPoint[] {
   switch (heldIndex.field) {
     case "pt":
-      setCurve((prevCurve) =>
-        prevCurve.map((pt, ind) => {
+        return prevCurve.map((pt, ind) => {
           if (ind === heldIndex.index) {
             const delta_x = pt.pt.x - newPoint.x;
             const delta_y = pt.pt.y - newPoint.y;
@@ -187,12 +186,10 @@ export function setCurvePointByIndex(
               },
             };
           } else return pt;
-        }),
-      );
-      break;
+        })
+      // Orange
     case "ctrlPt1A":
-      setCurve((prevCurve) =>
-        prevCurve.map((prevPoint, ind) => {
+        return prevCurve.map((prevPoint, ind) => {
           if (ind === heldIndex.index) {
             const { ctrlPt2R: drivenPoint } = GetRelativeBezierPoint(prevPoint);
             const relCurrentPt = GetRelativePoint(prevPoint.pt, newPoint);
@@ -205,12 +202,9 @@ export function setCurvePointByIndex(
               ctrlPt2A: GetAbsolutePoint(prevPoint.pt, newDrivenPoint),
             };
           } else return prevPoint;
-        }),
-      );
-      break;
+        });
     case "ctrlPt2A":
-      setCurve((prevCurve) =>
-        prevCurve.map((prevPoint, ind) => {
+        return prevCurve.map((prevPoint, ind) => {
           if (ind === heldIndex.index) {
             const { ctrlPt1R: drivenPoint } = GetRelativeBezierPoint(prevPoint);
             const relCurrentPt = GetRelativePoint(prevPoint.pt, newPoint);
@@ -223,8 +217,6 @@ export function setCurvePointByIndex(
               ctrlPt1A: GetAbsolutePoint(prevPoint.pt, newDrivenPoint),
             };
           } else return prevPoint;
-        }),
-      );
-      break;
+        });
   }
 }
