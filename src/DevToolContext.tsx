@@ -359,9 +359,9 @@ export function DevToolProvider(props: DevToolProps) {
       for (const propertyObj of animationProperty) {
         newCSS += `
         animation: ${propertyObj.animationName} ${propertyObj.duration} linear ${
-          propertyObj.iterationCount ? propertyObj.iterationCount : ""
-        } ${propertyObj.direction ? propertyObj.direction : ""} ${
-          propertyObj.fillMode ? propertyObj.fillMode : ""
+          propertyObj.animation_iteration_count ? propertyObj.animation_iteration_count : "1"
+        } ${propertyObj.animation_direction ? propertyObj.animation_direction : "normal"} ${
+          propertyObj.animation_fill_mode ? propertyObj.animation_fill_mode : ""
         };
         `;
       }

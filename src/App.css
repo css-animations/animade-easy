@@ -46,6 +46,7 @@ h2{
 }
 
 .AttachAnimation{
+  cursor: pointer;
   background-color: var(--regGreen);
   padding:10px;
   color:var(--darkGreen);
@@ -125,7 +126,7 @@ h2{
 
 .APStylus{
   width:40px;
-  height:40px; 
+  height:40px;
   background-color:var(--regGreen);
   display: flex;
   flex-direction:column-reverse;

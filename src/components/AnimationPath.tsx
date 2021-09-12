@@ -10,15 +10,14 @@ import LoopIcon from "@material-ui/icons/Loop";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import { DevToolContext } from "../DevToolContext";
-import { Simulate } from "react-dom/test-utils";
-import play = Simulate.play;
 import { PropertyDataContext } from "./PropertyDataContext";
 import { CreateLUT } from "../utils/bezier";
 import { AnimationPropertyType, ScaleTypeAnimation } from "../types/devToolContext";
 import { ANIMATABLE_PROPERTIES } from "./NewChild";
 
 export function AnimationPath() {
-  const { resetCSS, injectCSSAnimation, chosenClasses, chosenIDs, injectCSSAnimationClasses } = useContext(DevToolContext);
+  const { resetCSS, injectCSSAnimation, chosenClasses, chosenIDs, injectCSSAnimationClasses } =
+    useContext(DevToolContext);
   const { propertyData, dispatchPropertyData } = useContext(PropertyDataContext);
   const [scrubberSelected, setScrubberSellected] = useState(false);
 
@@ -45,7 +44,7 @@ export function AnimationPath() {
 
   const togglePlay = () => {
     if (playing) resetCSS();
-    else {
+    else if (chosenClasses !== "") {
       let animationClasses: AnimationPropertyType[] = [];
       let propertyDatumKey: keyof ANIMATABLE_PROPERTIES;
       // @ts-ignore
@@ -66,7 +65,6 @@ export function AnimationPath() {
       }
       const chosenClassNames = Object.keys(chosenClasses).map((sect) => "." + sect);
       const chosenIDNames = Object.keys(chosenIDs).map((sect) => "#" + sect);
-      // TODO: Add classnames once we get that in
       injectCSSAnimationClasses(animationClasses, [...chosenClassNames, ...chosenIDNames]);
     }
     setPlaying(!playing);

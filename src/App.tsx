@@ -1,27 +1,29 @@
 import React, { useState, useEffect, useReducer, useContext } from "react";
+import { DevToolContext, DevToolProvider } from "./DevToolContext";
 import { AnimateProperties } from "./components/AnimateProperties";
 import KeyframeDetails from "./components/KeyframeDetails";
 import "./App.css";
 import ExportWindow from "./components/ExportWindow";
-import {
-  PropertyReducerActionTypes,
-} from "./utils/propertyDataReducer";
+import { PropertyReducerActionTypes } from "./utils/propertyDataReducer";
 import { Point } from "./types/bezier";
 import { ANIMATABLE_PROPERTIES } from "./components/NewChild";
-import { AnimationPath } from "./components/AnimationPath"
+import { AnimationPath } from "./components/AnimationPath";
 import { PropertyDataContext, PropertyDataProvider } from "./components/PropertyDataContext";
 
 export function AppWrapper() {
   return (
-    <PropertyDataProvider>
-      <AppContent />
-    </PropertyDataProvider>
+    <DevToolProvider>
+      <PropertyDataProvider>
+        <AppContent />
+      </PropertyDataProvider>
+    </DevToolProvider>
   );
 }
 
 function AppContent() {
   const [headContent, setHeadContent] = useState("");
   const { propertyData, dispatchPropertyData } = useContext(PropertyDataContext);
+  const { attachInspect } = useContext(DevToolContext);
 
   //grab initial head content onMount
   useEffect(() => {
@@ -58,10 +60,12 @@ function AppContent() {
   return (
     <div className="App">
       <header className="App-header">
-        <div className = "buttonWrapper"><button className="AttachAnimation">AttachAnimation</button></div>
-        <AnimateProperties/>
-        <AnimationPath/>
-        <KeyframeDetails/>
+        <div className="buttonWrapper">
+          <button className="AttachAnimation" onClick={() => attachInspect()}>AttachAnimation</button>
+        </div>
+        <AnimateProperties />
+        <AnimationPath />
+        <KeyframeDetails />
         <ExportWindow />
       </header>
     </div>
