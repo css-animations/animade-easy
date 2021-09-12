@@ -14,18 +14,21 @@ import {
 } from "./utils/propertyDataReducer";
 import { Point } from "./types/bezier";
 import { ANIMATABLE_PROPERTIES } from "./components/NewChild";
-import { AnimationPropertyType, RotateTypeAnimation, ScaleTypeAnimation } from "./types/devToolContext";
+import {
+  AnimationPropertyType,
+  RotateTypeAnimation,
+  ScaleTypeAnimation,
+} from "./types/devToolContext";
 
 const TEST_DATA = [0, 0.13, 0.8, 1];
 
 const TEST_TYPE: AnimationPropertyType = {
-  animationTypes: [RotateTypeAnimation, ScaleTypeAnimation],
+  animationTypes: [RotateTypeAnimation],
   animationName: "floop",
   direction: "reverse",
   duration: "5s",
-  iterationCount: "infinite"
+  iterationCount: "infinite",
 };
-
 
 export default function AppWrapper() {
   return (
@@ -49,6 +52,7 @@ function AppContent() {
     injectCSSAnimation,
     injectCSSAnimationClasses,
     injectedAnimations,
+    exportedCSS,
   } = useContext(DevToolContext);
   const [propertyData, dispatchPropertyData] = useReducer(
     propertyReducer,
@@ -159,6 +163,12 @@ function AppContent() {
         <div>
           Generated Animations:{" "}
           {injectedAnimations.map((sect) => sect.animationName)}
+        </div>
+        <div>
+          Your CSS:
+          <pre>
+            <code>{exportedCSS}</code>
+          </pre>
         </div>
       </header>
     </div>

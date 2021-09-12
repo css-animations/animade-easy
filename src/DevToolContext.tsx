@@ -50,6 +50,7 @@ interface DevToolContextType {
     animationClasses: AnimationPropertyType[],
     classNames: string[],
   ) => void;
+  exportedCSS: string;
 }
 
 const defaultDevContext: DevToolContextType = {
@@ -74,6 +75,7 @@ const defaultDevContext: DevToolContextType = {
     classNames: string[],
   ) => {},
   injectedAnimations: [],
+  exportedCSS: "",
 };
 
 export const DevToolContext = React.createContext(defaultDevContext);
@@ -94,6 +96,7 @@ export function DevToolProvider(props: DevToolProps) {
   const [injectedAnimations, setInjectedAnimations] = useState<
     AnimationPropertyType[]
   >([]);
+  const [exportedCSS, setExportedCSS] = useState("");
 
   //function that listens
   const debugListener = useCallback(
@@ -159,6 +162,12 @@ export function DevToolProvider(props: DevToolProps) {
           },
         );
       }
+      chrome.debugger.sendCommand(debugee, "Overlay.setInspectMode", {
+        mode: "none",
+        highlightConfig: {
+          showInfo: false,
+        },
+      });
       //alert(params);
     },
     [from, to],
@@ -277,6 +286,14 @@ export function DevToolProvider(props: DevToolProps) {
         };
         chrome.scripting.insertCSS(newInjection, () => {
           setInjectedStyles((prevStyles) => [...prevStyles, newInjection]);
+          setExportedCSS(
+            (prev) =>
+              prev +
+              `
+          
+          ` +
+              newCSS,
+          );
           //alert("Sucessfully inserted CSS!");
         });
       } catch (error) {
@@ -313,6 +330,9 @@ export function DevToolProvider(props: DevToolProps) {
         newCSS += `
         ${property.formatFunction(75)}`;
       }
+      newCSS += `
+    }
+    `;
     }
     newCSS += `
   }
@@ -324,6 +344,14 @@ export function DevToolProvider(props: DevToolProps) {
     };
     chrome.scripting.insertCSS(newInjection, () => {
       setInjectedStyles((prevStyles) => [...prevStyles, newInjection]);
+      setExportedCSS(
+        (prev) =>
+          prev +
+          `
+          
+      ` +
+          newCSS,
+      );
       setInjectedAnimations((prevAnimations) => [
         ...prevAnimations,
         animationObj,
@@ -350,7 +378,13 @@ export function DevToolProvider(props: DevToolProps) {
         `;
       for (const propertyObj of animationProperty) {
         newCSS += `
-        animation: ${propertyObj.animationName} ${propertyObj.duration} linear ${propertyObj.iterationCount ? propertyObj.iterationCount : ''} ${propertyObj.direction ? propertyObj.direction : ''} ${propertyObj.fillMode ? propertyObj.fillMode : ''};
+        animation: ${propertyObj.animationName} ${
+          propertyObj.duration
+        } linear ${
+          propertyObj.iterationCount ? propertyObj.iterationCount : ""
+        } ${propertyObj.direction ? propertyObj.direction : ""} ${
+          propertyObj.fillMode ? propertyObj.fillMode : ""
+        };
         `;
       }
       newCSS += `
@@ -365,6 +399,14 @@ export function DevToolProvider(props: DevToolProps) {
     chrome.scripting.insertCSS(newInjection, () => {
       setInjectedStyles((prevStyles) => [...prevStyles, newInjection]);
       console.log("Added animation to classes!");
+      setExportedCSS(
+        (prev) =>
+          prev +
+          `
+          
+      ` +
+          newCSS,
+      );
     });
   }
 
@@ -379,6 +421,8 @@ export function DevToolProvider(props: DevToolProps) {
         }),
       );
       setInjectedStyles([]);
+      setInjectedAnimations([]);
+      setExportedCSS("");
     }
   }
 
@@ -432,6 +476,7 @@ export function DevToolProvider(props: DevToolProps) {
         injectCSSAnimation,
         injectCSSAnimationClasses,
         injectedAnimations,
+        exportedCSS,
       }}
     >
       {props.children}
