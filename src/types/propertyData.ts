@@ -27,21 +27,6 @@ export interface AnimationOptions {
   animation_iteration_count?: number | "infinite";
 }
 
-interface TimelineState {}
-
-class PropertyFunctions {
-  static bezierWidth: number;
-  static bezierHeight: number;
-
-  /// Get the percent (0-1) from a state
-
-  /// Set the percent (from 0-1) that a keyframe animation should be
-
-  /// Number from 0-1 representing the percentage of progress through the animation.
-  /// The function returns the text of a keyframe at that point in time.
-  // keyframesAsCss(t: number): string {}
-}
-
 export function setKeyframePercent(
   keyframes: AbsoluteBezierPoint[],
   percent: Point,
