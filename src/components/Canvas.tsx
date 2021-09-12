@@ -76,7 +76,10 @@ function drawBezier(
   }
   context.stroke();
   context.closePath();
-  CreateLUT(curves, context)
+
+  // for (const point of CreateLUT(curves)) {
+  //   drawDot(context, point, 5, "blue")
+  // }
 }
 
 function getMousePos(

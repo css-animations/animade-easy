@@ -247,26 +247,34 @@ export function GetPointAtT(
 
 export function CreateLUT(
   curve: AbsoluteBezierPoint[],
-  context: CanvasRenderingContext2D,
-) {
-  const pointArr: Point[] = [];
+  num_steps: number = 20
+): Point[][] {
+  const pointArr: Point[][] = [];
   for (let i = 0; i < curve.length - 1; i++) {
-    for (let j = 1; j < 10; j++) {
-      const point = GetPointAtT(j / 10, curve[i], curve[i + 1]);
-      pointArr.push(point);
-      drawDot(context, point, 4, "blue");
+    const subPointArr = []
+    for (let j = 1; j < num_steps; j++) {
+      const point = GetPointAtT(j / num_steps, curve[i], curve[i + 1]);
+      subPointArr.push(point);
     }
+    pointArr.push(subPointArr)
   }
   return pointArr;
 }
 
 // Drops a point on the bezier curve array exactly in place where it should be,
 // without disrupting the existing curve
-export function DropNewPoint(xPos: number): AbsoluteBezierPoint[] {
-  // TODO: Determine y position
-  // TODO: Determine the drag handle position without recomputing whole path
-  return [];
-}
+// export function DropNewPoint(curve: AbsoluteBezierPoint[], xPos: number): AbsoluteBezierPoint[] {
+//   let y_pos: number;
+//   const lut = CreateLUT(curve)
+//   for (let i = 1; i < lut.length; i++) {
+//     if (lut[i].x > xPos) {
+//       y_pos = (lut[i-1].y - lut[i].y)/2
+//     }
+//   }
+//   // TODO: Determine y position
+//   // TODO: Determine the drag handle position without recomputing whole path
+//   return [];
+// }
 
 export function drawDot(
   context: CanvasRenderingContext2D,

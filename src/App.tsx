@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useState, useEffect, useReducer, useContext } from "react";
 import { AnimateProperties } from "./components/AnimateProperties";
 import KeyframeDetails from "./components/KeyframeDetails";
 import "./App.css";
@@ -12,13 +12,19 @@ import {
 } from "./utils/propertyDataReducer";
 import { Point } from "./types/bezier";
 import { ANIMATABLE_PROPERTIES } from "./components/NewChild";
+import { PropertyDataContext, PropertyDataProvider } from "./components/PropertyDataContext";
 
-export function App() {
-  const [headContent, setHeadContent] = useState("");
-  const [propertyData, dispatchPropertyData] = useReducer(
-    propertyReducer,
-    propertyReducerDefaultState,
+export function AppWrapper() {
+  return (
+    <PropertyDataProvider>
+      <AppContent />
+    </PropertyDataProvider>
   );
+}
+
+function AppContent() {
+  const [headContent, setHeadContent] = useState("");
+  const { propertyData, dispatchPropertyData } = useContext(PropertyDataContext);
 
   //grab initial head content onMount
   useEffect(() => {
@@ -43,7 +49,7 @@ export function App() {
         animationOptions: {},
         points: points,
       },
-      timelineId: ANIMATABLE_PROPERTIES.width
+      timelineId: ANIMATABLE_PROPERTIES.width,
     });
 
     dispatchPropertyData({
@@ -58,13 +64,10 @@ export function App() {
         <AnimateProperties />
         <KeyframeDetails />
         {propertyData.propertyMetadata.selectedProperty &&
-        propertyData.propertyMetadata.selectedProperty in
-          propertyData.properties ? (
+        propertyData.propertyMetadata.selectedProperty in propertyData.properties ? (
           <BezierComponent
             selectedProperty={
-              propertyData.properties[
-                propertyData.propertyMetadata.selectedProperty
-              ] as Property
+              propertyData.properties[propertyData.propertyMetadata.selectedProperty] as Property
             }
             currentIndex={1}
             width={400}
