@@ -29,7 +29,7 @@ export function AnimateProperties(){
             </button>
             <TimelineNav mouseX = {mouseX} mouseY = {mouseY}></TimelineNav>
             <PropertyList></PropertyList>
-            <KeyDot x = {mouseX} y = {mouseY} locked = {false} yLock = {100} xmin = {20} xmax = {500} selected = {false}></KeyDot>
+            <KeyDot x = {700} y = {700} locked = {false} yLock = {100} xmin = {20} xmax = {500} selected = {false}></KeyDot>
         </div>
     )
 }

@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 interface Props{
   mouseX: number,
   mouseY: number,
+  time: number,
+  setTime: React.Dispatch<React.SetStateAction<number>>,
 }
 
 export function TimeRuler(props: Props){
@@ -13,8 +15,9 @@ export function TimeRuler(props: Props){
     var leftBound = bounds.x;
     var rightBound = bounds.x + bounds.width;
     
+    
+
     function bounder(clicked:any){
-        
         let loc = 0;
         if(clicked){
             loc = mousex-20;
