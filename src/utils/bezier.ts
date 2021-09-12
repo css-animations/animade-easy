@@ -233,11 +233,14 @@ export function CreateLUT(curve: AbsoluteBezierPoint[], num_steps: number = 20):
   return pointArr;
 }
 
+function insert<T>( index: number, array: T[], item: T): T[] {
+  return array.splice( index, 0, item );
+};
+
 // Drops a point on the bezier curve array exactly in place where it should be,
 // without disrupting the existing curve
 export function DropNewPoint(curve: AbsoluteBezierPoint[], xPos: number): AbsoluteBezierPoint[] {
   let best_pos: LutPoint;
-  let pointIndex: number;
   const lutList = CreateLUT(curve);
   best_pos = lutList[0];
   for (let i = 1; i < lutList.length; i++) {
@@ -249,9 +252,16 @@ export function DropNewPoint(curve: AbsoluteBezierPoint[], xPos: number): Absolu
       };
     }
   }
+
+  const pointInsertAfterIndex = Math.ceil(best_pos.t * curve.length);
+  return insert(pointInsertAfterIndex, curve, {
+    pt: best_pos,
+    ctrlPt1A: best_pos,
+    ctrlPt2A: best_pos
+  })
+
   // TODO: Determine y position
   // TODO: Determine the drag handle position without recomputing whole path
-  return [];
 }
 
 export function drawDot(

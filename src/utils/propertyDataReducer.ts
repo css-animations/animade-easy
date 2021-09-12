@@ -1,8 +1,5 @@
-import { computeStartingBezierPoints, setCurvePointByIndex } from "./bezier";
-import {
-  AnimationOptions,
-  PropertyData,
-} from "../types/propertyData";
+import { computeStartingBezierPoints, DropNewPoint, setCurvePointByIndex } from "./bezier";
+import { AnimationOptions, PropertyData } from "../types/propertyData";
 import { AbsoluteBezierPoint, heldItemData, Point } from "../types/bezier";
 import { ANIMATABLE_PROPERTIES } from "../components/NewChild";
 
@@ -14,15 +11,15 @@ export enum PropertyReducerActionTypes {
   SET_SELECTED_PROPERTY = "SET_SELECTED_PROPERTY",
   CREATE_NEW_KEYFRAME = "CREATE_NEW_KEYFRAME",
   MODIFY_ANIMATION_OPTIONS = "MODIFY_ANIMATION_OPTIONS",
-  SET_DEFAULT_CURVE = "SET_DEFAULT_CURVE"
+  SET_DURATION = "SET_DURATION",
+  SET_DEFAULT_CURVE = "SET_DEFAULT_CURVE",
 }
 
 interface GeneralPropertyReducerActions {
   timelineId: ANIMATABLE_PROPERTIES;
 }
 
-interface SET_CURVE_POINT_BY_INDEX_PERCENT
-  extends GeneralPropertyReducerActions {
+interface SET_CURVE_POINT_BY_INDEX_PERCENT extends GeneralPropertyReducerActions {
   type: PropertyReducerActionTypes.SET_CURVE_POINT_BY_INDEX_PERCENT;
   data: {
     percentage: Point;
@@ -59,15 +56,18 @@ interface CREATE_NEW_PROPERTY extends GeneralPropertyReducerActions {
 interface SET_SELECTED_PROPERTY {
   type: PropertyReducerActionTypes.SET_SELECTED_PROPERTY;
   data: {
-    property: ANIMATABLE_PROPERTIES | undefined
+    property: ANIMATABLE_PROPERTIES | undefined;
   };
 }
 
-interface CREATE_NEW_KEYFRAME  extends GeneralPropertyReducerActions {
-  type: PropertyReducerActionTypes.CREATE_NEW_KEYFRAME,
+interface CREATE_NEW_KEYFRAME extends GeneralPropertyReducerActions {
+  type: PropertyReducerActionTypes.CREATE_NEW_KEYFRAME;
   data: {
-    horizontalPosition: number
-  }
+    horizontalPixels: number;
+  } | {
+    horizontalPercentage: number;
+    bezierWidth: number;
+  };
 }
 
 export type PropertyReducerActions =
@@ -75,13 +75,10 @@ export type PropertyReducerActions =
   | SET_CURVE_POINT_BY_INDEX_PERCENT
   | COMPUTE_STARTING_BEZIER_POINTS
   | CREATE_NEW_PROPERTY
-  | SET_SELECTED_PROPERTY;
-  // | CREATE_NEW_KEYFRAME;
+  | SET_SELECTED_PROPERTY
+  | CREATE_NEW_KEYFRAME;
 
-export function propertyReducer(
-  state: PropertyData,
-  action: PropertyReducerActions,
-): PropertyData {
+export function propertyReducer(state: PropertyData, action: PropertyReducerActions): PropertyData {
   switch (action.type) {
     case PropertyReducerActionTypes.SET_CURVE_POINT_BY_INDEX:
       if (action.timelineId in state.properties)
@@ -98,7 +95,7 @@ export function propertyReducer(
                 state.properties[action.timelineId]._keyframes,
               ),
             },
-          }
+          },
         };
       return state;
     case PropertyReducerActionTypes.COMPUTE_STARTING_BEZIER_POINTS:
@@ -110,7 +107,7 @@ export function propertyReducer(
             ...state.properties[action.timelineId],
             _keyframes: computeStartingBezierPoints(action.data.points),
           },
-        }
+        },
       };
     case PropertyReducerActionTypes.CREATE_NEW_PROPERTY:
       return {
@@ -145,7 +142,7 @@ export function propertyReducer(
                 state.properties[action.timelineId]._keyframes,
               ),
             },
-          }
+          },
         };
       }
       return state;
@@ -156,8 +153,22 @@ export function propertyReducer(
           selectedProperty: action.data.property,
         },
       };
-    // case PropertyReducerActionTypes.CREATE_NEW_KEYFRAME:
-
+    case PropertyReducerActionTypes.CREATE_NEW_KEYFRAME:
+      let xPos: number;
+      if ("horizontalPercentage" in action.data)
+        xPos = action.data.horizontalPercentage * action.data.bezierWidth
+      else
+        xPos = action.data.horizontalPixels
+      return {
+        ...state,
+        properties: {
+          ...state.properties,
+          [action.timelineId]: {
+            // @ts-ignore
+            _keyframes: DropNewPoint(state.properties[action.timelineId]._keyframes, xPos)
+          },
+        },
+      };
   }
 }
 
