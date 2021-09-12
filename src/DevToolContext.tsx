@@ -454,6 +454,7 @@ export function DevToolProvider(props: DevToolProps) {
         injectCSSAnimation,
         injectCSSAnimationClasses,
         injectedAnimations,
+        exportedCSS,
       }}
     >
       {props.children}
