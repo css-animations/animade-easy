@@ -68,15 +68,16 @@ export function AnimationPath(){
                     <ArrowForwardIcon />
                 </IconButton>
             </div>
-            <div>
+            <div className = "APBlackBoard">
+                <div className = {"APBlank disable-select"}>.</div>
                 <TimeRuler time = {time} setTime = {setTime} mouseX = {mouseX} mouseY = {mouseY} scrubberSelected = {scrubberSelected} setScrubberSelected = {setScrubberSellected}></TimeRuler>
+                <Labels className = {"APyLabel"} total={40} numTicks={10} ending={"px"} isRow={false}/>
                 <BezierComponent
                     currentIndex={1}
                     width={1000}
                     height={1000}
                     />
-                <Labels total={40} numTicks={10} ending={"px"} isRow={true}/>
-                <Labels total={40} numTicks={10} ending={"px"} isRow={false}/>
+                
             </div>
         </div>
     )

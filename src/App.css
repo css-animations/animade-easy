@@ -1,5 +1,8 @@
 .App {
   text-align: center;
+  --darkGreen:  #0E2606;
+  --regGreen:#599E40;
+  --lightGreen:#F1FFF3;
 }
 
 .App-logo {
@@ -49,3 +52,40 @@
 
 
 /* AnimationPath */
+.APContainer{
+  width:100%;
+}
+
+.APIconBar{
+  width:100%;
+}
+
+.APBlackBoard{
+  width:400px;
+  height:200px;
+  display:grid;
+  grid-template-rows: 1fr 9fr;
+  grid-template-columns: 1fr 9fr;
+}
+
+.APBlank {
+  grid-column:1/2;
+  grid-row:1/2
+}
+.APRuler {
+  grid-column: 2 / 3;
+  grid-row:1/2;
+}
+
+.APyLabel{
+  width:100%;
+  grid-column: 1 / 2;
+  grid-row: 2/3;
+}
+
+.APBezierComponent{
+  grid-column: 2 / 3;
+  grid-row: 2/3;
+}
+
+

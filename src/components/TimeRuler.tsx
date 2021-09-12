@@ -21,7 +21,7 @@ export function TimeRuler(props: Props){
     }
 
     return(
-            <div className = "TimeRulerContainer" style = {{width:"400px", height:"40px", backgroundColor:"lightpink", display:"flex", flexDirection:"row"}}
+            <div className = "APRuler" style = {{backgroundColor:"lightpink"}}
                 onMouseDown ={() => props.setScrubberSelected(true)}
                 ref={el => {
                     if (!el) return;
@@ -41,7 +41,7 @@ export function TimeRuler(props: Props){
                 <div className="disable-select" style = {{width:"40px",height:"40px", backgroundColor:"red", position:"absolute", fontSize:"16px", left:`${timeToPos(props.time,bounds.width) + bounds.x -20}px`}}>
                     {(100*props.time).toFixed(1)}%
                 </div>
-                <Labels  total={40} numTicks={10} ending={"px"} isRow={true}/>
+                <Labels className={"oogaloogabooga"} total={40} numTicks={10} ending={"px"} isRow={true}/>
             </div>
     )
 }
