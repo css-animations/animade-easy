@@ -12,13 +12,11 @@ interface Props{
 export function TimeRuler(props: Props){
     var mousex = props.mouseX;
     const [bounds, setBounds] = useState({x:20,width:20})
-    var leftBound = bounds.x;
-    var rightBound = bounds.x + bounds.width;
 
     if (props.scrubberSelected) {
-      if(posToTime(mousex, bounds.width) < 0) props.setTime(0);
-      else if(posToTime(mousex, bounds.width) > 1) props.setTime(1);
-      else  props.setTime(posToTime(mousex, bounds.width))
+      if(posToTime(mousex - bounds.x, bounds.width)  < 0) props.setTime(0);
+      else if(posToTime(mousex - bounds.x, bounds.width ) > 1) props.setTime(1);
+      else  props.setTime(posToTime(mousex - bounds.x, bounds.width) )
     }
 
 
@@ -49,7 +47,7 @@ export function TimeRuler(props: Props){
                     }, 100);
                   }}
                 >
-                <div className="disable-select" style = {{width:"40px",height:"40px", backgroundColor:"red", position:"absolute", fontSize:"16px", left:`${timeToPos(props.time,bounds.width) -20}px`}}>
+                <div className="disable-select" style = {{width:"40px",height:"40px", backgroundColor:"red", position:"absolute", fontSize:"16px", left:`${timeToPos(props.time,bounds.width) + bounds.x -20}px`}}>
                     {100*props.time}%
                 </div>
                 {labels(100)}

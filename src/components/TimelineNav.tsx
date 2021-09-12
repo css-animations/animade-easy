@@ -28,7 +28,7 @@ export function TimelineNav(props: Props){
     }
 
     const handleSkipForward = () =>{
-        setTime(time + 1);
+        setTime(time + .01);
     }
 
     const handleRewind = () => {
