@@ -14,7 +14,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   color: black;
   text-align: left;
   width:600px;
@@ -38,8 +37,40 @@ h2{
  -ms-user-select: none; /* Internet Explorer/Edge */
 }
 
+/* Atach Animation Button */
+.buttonWrapper{
+  padding:25px 25px 0px 25px;
+  width:525px;
+  display:flex;
+  align-items: flex-start;
+}
+
+.AttachAnimation{
+  background-color: var(--regGreen);
+  padding:10px;
+  color:var(--darkGreen);
+  border:none;
+  border-radius: 20px;
+  font-family: var(--font-family);
+  font-size:20px;
+  border: 1px solid var(--lightGreen);
+}
+
+.AttachAnimation:hover{
+  color:var(--darkGreen);
+  border: 1px solid var(--darkGreen);
+  background-color: var(--lightGreen);
+}
+
+/* AnimateProperties */
 
 
+.TableRow{
+  border-top: 1px solid var(--regGreen);
+  font-family: var(--font-family);
+}
+
+.TableRow
 
 /* AnimationPath */
 .APContainer{
@@ -130,7 +161,8 @@ h2{
 
 /* KeyFrame Details */
 
-.KDWrapper{
+.KDWrapper,
+.APSWrapper{
   padding:25px 25px 0px 25px;
   width:525px;
   display:flex;
@@ -153,3 +185,4 @@ h2{
 .NumOption{
   padding:10px 0px 0px 25px;
 }
+

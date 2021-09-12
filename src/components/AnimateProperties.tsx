@@ -19,11 +19,7 @@ function Row(props: RowProps) {
     <TableRow>
       <TableCell
         align="left"
-        style={{
-          border: 1,
-          borderStyle: "solid",
-          borderColor: "#599E40",
-        }}
+        className = {"TableRow"}
       >
         <Property key={props.index} name={props.propertyName} />
       </TableCell>
@@ -34,9 +30,9 @@ function Row(props: RowProps) {
 export function AnimateProperties() {
   const [propertiesArray, setPropertiesArray] = useState<string[]>([]);
   return (
-    <div>
-      <h3>Animated Properties</h3>
-      <TableContainer>
+    <div className = "APSWrapper">
+      <h2>Animated Properties</h2>
+      <TableContainer className = "TableContainer">
         <TableBody>
           {propertiesArray.map((propertyName, index) => {
             return <Row index={index} propertyName={propertyName} />;
