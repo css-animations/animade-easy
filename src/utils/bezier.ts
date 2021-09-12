@@ -222,10 +222,6 @@ export function setCurvePointByIndex(
 //
 // }
 
-// function plotBezierCurve(curve: AbsoluteBezierPoint[]): Point[] {
-//   for (let i = 0; i < curve.length; i++) {}
-// }
-
 export function GetPointAtT(
   t: number,
   leftPoint: AbsoluteBezierPoint,
@@ -233,18 +229,36 @@ export function GetPointAtT(
 ): Point {
   const t0 = -(t * t * t) + 3 * t * t - 3 * t + 1;
   const t1 = 3 * t * t * t - 6 * t * t + 3 * t;
-  const t2 = -(3 * t * t * t) - 3 * t * t;
+  const t2 = -(3 * t * t * t) + 3 * t * t;
   const t3 = t * t * t;
   return {
-    x: leftPoint.pt.x * t0 + leftPoint.ctrlPt2A.x * t1 + rightPoint.ctrlPt1A.x * t2 + rightPoint.pt.y * t3,
-    y: leftPoint.pt.y * t0 + leftPoint.ctrlPt2A.y * t1 + rightPoint.ctrlPt1A.y * t2 + rightPoint.pt.y * t3
-  }
+    x:
+      leftPoint.pt.x * t0 +
+      leftPoint.ctrlPt2A.x * t1 +
+      rightPoint.ctrlPt1A.x * t2 +
+      rightPoint.pt.x * t3,
+    y:
+      leftPoint.pt.y * t0 +
+      leftPoint.ctrlPt2A.y * t1 +
+      rightPoint.ctrlPt1A.y * t2 +
+      rightPoint.pt.y * t3,
+  };
 }
 
-export function PlotPointsAlongCurve(
+export function CreateLUT(
   curve: AbsoluteBezierPoint[],
   context: CanvasRenderingContext2D,
-) {}
+) {
+  const pointArr: Point[] = [];
+  for (let i = 0; i < curve.length - 1; i++) {
+    for (let j = 1; j < 10; j++) {
+      const point = GetPointAtT(j / 10, curve[i], curve[i + 1]);
+      pointArr.push(point);
+      drawDot(context, point, 4, "blue");
+    }
+  }
+  return pointArr;
+}
 
 // Drops a point on the bezier curve array exactly in place where it should be,
 // without disrupting the existing curve

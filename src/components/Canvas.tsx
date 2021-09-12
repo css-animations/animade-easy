@@ -6,7 +6,7 @@ import {
   PropertyReducerActionTypes,
 } from "../utils/propertyDataReducer";
 import { ANIMATABLE_PROPERTIES } from "./NewChild";
-import { drawDot } from "../utils/bezier";
+import { drawDot, GetPointAtT, CreateLUT } from "../utils/bezier";
 
 type CanvasProps = React.DetailedHTMLProps<
   React.CanvasHTMLAttributes<HTMLCanvasElement>,
@@ -76,6 +76,7 @@ function drawBezier(
   }
   context.stroke();
   context.closePath();
+  CreateLUT(curves, context)
 }
 
 function getMousePos(
