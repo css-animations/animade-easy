@@ -141,7 +141,7 @@ function NewChild(props: NewChildProps) {
   };
 
   const body = (
-    <div>
+    <div style={{ backgroundColor: "#FFF", position: "absolute", top: "15%", left: "25%" }}>
       <select
         value={name}
         onChange={(event) => {
