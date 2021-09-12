@@ -109,6 +109,7 @@ h2{
   background-color: var(--darkGreen);
   padding:25px 25px 0px 0px;
   border-radius:20px;
+  overflow: hidden;
 }
 
 .APBlank {
@@ -186,3 +187,32 @@ h2{
   padding:10px 0px 0px 25px;
 }
 
+/* ExportWIndow */
+.EWWrapper{
+  margin-top:50px;
+  width:525px;
+  background-color: var(--darkGreen);
+  text-align: start;
+  color:var(--lightGreen);
+  border-radius: 25px;
+  overflow: hidden;
+}
+
+.EWTop{
+  
+  padding:10px;
+  background-color: var(--regGreen);
+  display:flex;
+  flex-direction:row;
+  justify-content: center;
+  align-items: center;
+  border-bottom:1px solid var(--regGreen);
+}
+.EWTop:hover{
+  background-color: var(--darkGreen);
+  
+}
+
+.EWCode{
+  padding:20px;
+}

@@ -10,14 +10,18 @@ function ExportWindow() {
     }
 
     return (
-        <div>
-            <div>
-            Copy to clipboard
-            <IconButton onClick={handleCopy}>
-                <FileCopyIcon />
+        <div className="EWWrapper">
+            <div className = "EWTop" onClick={handleCopy}>
+                Copy to clipboard
+            <IconButton>
+                <FileCopyIcon
+                style={{ color: "#F1FFF3" }}
+                    />
             </IconButton>
             </div>
-            {text}
+            <div className="EWCode">
+                {text}
+            </div>
         </div>
     );
 }
