@@ -45,15 +45,16 @@ function AppContent() {
     setTo,
     chosenClasses,
     chosenIDs,
-    applyAnimation,
     setChosenClasses,
     injectCSSAnimation,
     injectCSSAnimationClasses,
+    injectedAnimations,
   } = useContext(DevToolContext);
   const [propertyData, dispatchPropertyData] = useReducer(
     propertyReducer,
     propertyReducerDefaultState,
   );
+  const [classInput, setClassInput] = useState("");
 
   const chosenClassContainers = Object.keys(chosenClasses).map((sect) => (
     <span
@@ -146,9 +147,16 @@ function AppContent() {
         >
           Apply Animation!
         </button>
-        <button onClick={() => injectCSSAnimation("fun", TEST_DATA)}>
+        <input
+          type="text"
+          placeholder="Animation Name"
+          value={classInput}
+          onChange={(event) => setClassInput(event.target.value)}
+        />
+        <button onClick={() => injectCSSAnimation(classInput, TEST_DATA)}>
           Inject Animation!
         </button>
+        <div>Generated Animations: {injectedAnimations}</div>
       </header>
     </div>
   );

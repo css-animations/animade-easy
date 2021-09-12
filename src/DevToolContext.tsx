@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import * as devtoolsProtocol from "devtools-protocol";
+import { ANIMATABLE_PROPERTIES } from "./components/NewChild";
 async function getCurrentTab() {
   let queryOptions = { active: true, currentWindow: true };
   let [tab] = await chrome.tabs.query(queryOptions);
@@ -15,6 +16,15 @@ const defaultAnimationProperty: animationPropertyType = {
   value: "idk",
   direction: "left",
   duration: "5s",
+};
+
+interface AnimationTypeDatum {
+  animationType: ANIMATABLE_PROPERTIES;
+  formatFunction: (rawData: string) => string;
+}
+const ScaleTypeAnimation: AnimationTypeDatum = {
+  animationType: ANIMATABLE_PROPERTIES.scale,
+  formatFunction: (rawData: string): string => `transform: scale(${rawData});`,
 };
 
 //easing is linear cuz the animation handles it
@@ -52,7 +62,6 @@ interface DevToolContextType {
   chosenClasses: {};
   setChosenClasses: React.Dispatch<React.SetStateAction<{}>>;
   chosenIDs: {};
-  applyAnimation: () => void;
   injectCSSAnimation: (
     animationTitle: string,
     percentageList: number[],
@@ -61,6 +70,7 @@ interface DevToolContextType {
     animationClasses: animationPropertyType[],
     classNames: string[],
   ) => void;
+  injectedAnimations: string[];
 }
 
 const defaultDevContext: DevToolContextType = {
@@ -76,12 +86,12 @@ const defaultDevContext: DevToolContextType = {
   chosenClasses: {},
   setChosenClasses: () => {},
   chosenIDs: {},
-  applyAnimation: () => {},
   injectCSSAnimation: (animationTitle: string, percentageList: number[]) => {},
   injectCSSAnimationClasses: (
     animationClasses: animationPropertyType[],
     classNames: string[],
   ) => {},
+  injectedAnimations: [],
 };
 
 export const DevToolContext = React.createContext(defaultDevContext);
@@ -99,6 +109,8 @@ export function DevToolProvider(props: DevToolProps) {
   //sets of chosen classes/IDs
   const [chosenClasses, setChosenClasses] = useState({});
   const [chosenIDs, setChosenIDs] = useState({});
+  //TODO: make this typed
+  const [injectedAnimations, setInjectedAnimations] = useState<string[]>([]);
 
   //function that listens
   const debugListener = useCallback(
@@ -233,16 +245,16 @@ export function DevToolProvider(props: DevToolProps) {
     } else alert("Invalid tab ID!");
   }
 
-  async function applyAnimation() {
-    for (let chosenClass of Object.keys(chosenClasses)) {
-      console.log("Applying animation to a class!");
-      injectCSS("." + chosenClass);
-    }
-    for (let id of Object.keys(chosenIDs)) {
-      console.log("Applying animation to an id!");
-      injectCSS("#" + id);
-    }
-  }
+  // async function applyAnimation() {
+  //   for (let chosenClass of Object.keys(chosenClasses)) {
+  //     console.log("Applying animation to a class!");
+  //     injectCSS("." + chosenClass);
+  //   }
+  //   for (let id of Object.keys(chosenIDs)) {
+  //     console.log("Applying animation to an id!");
+  //     injectCSS("#" + id);
+  //   }
+  // }
 
   //function to injectCSS
   const injectCSS = useCallback(
@@ -332,6 +344,10 @@ export function DevToolProvider(props: DevToolProps) {
     };
     chrome.scripting.insertCSS(newInjection, () => {
       setInjectedStyles((prevStyles) => [...prevStyles, newInjection]);
+      setInjectedAnimations((prevAnimations) => [
+        ...prevAnimations,
+        animationTitle,
+      ]);
       console.log("Added animation!");
     });
   }
@@ -434,10 +450,10 @@ export function DevToolProvider(props: DevToolProps) {
         setTo,
         chosenClasses,
         chosenIDs,
-        applyAnimation,
         setChosenClasses,
         injectCSSAnimation,
         injectCSSAnimationClasses,
+        injectedAnimations,
       }}
     >
       {props.children}
