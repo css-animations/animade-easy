@@ -39,7 +39,9 @@ interface DevToolContextType {
   to: number;
   setTo: React.Dispatch<React.SetStateAction<number>>;
   chosenClasses: {};
+  setChosenClasses: React.Dispatch<React.SetStateAction<{}>>;
   chosenIDs: {};
+  applyAnimation: () => void;
 }
 
 const defaultDevContext: DevToolContextType = {
@@ -55,7 +57,9 @@ const defaultDevContext: DevToolContextType = {
   to: 100,
   setTo: () => {},
   chosenClasses: {},
+  setChosenClasses: () => {},
   chosenIDs: {},
+  applyAnimation: () => {},
 };
 
 export const DevToolContext = React.createContext(defaultDevContext);
@@ -75,7 +79,7 @@ export function DevToolProvider(props: DevToolProps) {
   const [chosenIDs, setChosenIDs] = useState({});
 
   //function that listens
-  var debugListener = useCallback(
+  const debugListener = useCallback(
     async function debugListenerFunc(source: any, method: any, params: any) {
       const tab = await getCurrentTab();
       if (!tab && tab !== 0) return;
@@ -85,6 +89,10 @@ export function DevToolProvider(props: DevToolProps) {
       //alert(source);
       console.log(method);
       //console.log the styles as necessary
+      if (method === "CSS.styleSheetAdded") {
+        console.log(params.header);
+      }
+
       if (method === "Overlay.inspectNodeRequested") {
         //alert(params);
         console.log(params);
@@ -117,7 +125,7 @@ export function DevToolProvider(props: DevToolProps) {
                 const classes = property.value.split(" ");
                 //get list of classes of DOM node
                 for (const currClass of classes) {
-                  injectCSS("." + currClass);
+                  //injectCSS("." + currClass);
                   setChosenClasses((prevClasses) => ({
                     ...prevClasses,
                     [currClass]: true,
@@ -125,7 +133,7 @@ export function DevToolProvider(props: DevToolProps) {
                 } //inject for the id if it's not a class
               } else if (property.name === "id") {
                 const currId = property.value;
-                injectCSS("#" + currId);
+                //injectCSS("#" + currId);
                 setChosenIDs((prevIDs) => ({
                   ...prevIDs,
                   currId: true,
@@ -141,6 +149,7 @@ export function DevToolProvider(props: DevToolProps) {
   );
   //when component mounts, attach debugger to current tab
   useEffect(() => {
+    if (!from || !to) return;
     async function debugAttach() {
       const tab = await getCurrentTab();
 
@@ -151,7 +160,7 @@ export function DevToolProvider(props: DevToolProps) {
       const debugee = {
         tabId: tab.id,
       };
-      chrome.debugger.onEvent.removeListener(debugListener);
+      //chrome.debugger.onEvent.removeListener(debugListener);
       chrome.debugger.detach(debugee);
       await attachDebugger();
       chrome.tabs.onActivated.addListener(tabListener);
@@ -167,7 +176,10 @@ export function DevToolProvider(props: DevToolProps) {
         chrome.debugger.onEvent.removeListener(debugListener);
         chrome.tabs.onActivated.removeListener(tabListener);
       }
-      destructor();
+      if (typeof to === "number" && typeof from === "number") {
+        console.log("Detaching!");
+        destructor();
+      }
     };
   }, [from, to]);
 
@@ -181,8 +193,6 @@ export function DevToolProvider(props: DevToolProps) {
     attachDebugger();
     console.log("Tab changed!");
   }
-
-  //write unmount code
 
   //function to attach debugger to current tab
   async function attachDebugger() {
@@ -262,6 +272,17 @@ export function DevToolProvider(props: DevToolProps) {
         );
       }
     );
+  }
+
+  async function applyAnimation() {
+    for (let chosenClass of Object.keys(chosenClasses)) {
+      console.log("Applying animation to a class!");
+      injectCSS("." + chosenClass);
+    }
+    for (let id of Object.keys(chosenIDs)) {
+      console.log("Applying animation to an id!");
+      injectCSS("#" + id);
+    }
   }
 
   //highlight the last instance of a selector
@@ -435,6 +456,8 @@ export function DevToolProvider(props: DevToolProps) {
         setTo,
         chosenClasses,
         chosenIDs,
+        applyAnimation,
+        setChosenClasses,
       }}
     >
       {props.children}

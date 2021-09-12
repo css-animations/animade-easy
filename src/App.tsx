@@ -22,8 +22,23 @@ function AppContent() {
     setTo,
     chosenClasses,
     chosenIDs,
+    applyAnimation,
+    setChosenClasses,
   } = useContext(DevToolContext);
 
+  const chosenClassContainers = Object.keys(chosenClasses).map((sect) => (
+    <span
+      onClick={() => {
+        setChosenClasses((prevClasses) => {
+          const newClasses: any = { ...prevClasses };
+          delete newClasses[sect];
+          return newClasses;
+        });
+      }}
+    >
+      {sect}
+    </span>
+  ));
   return (
     <div className="App">
       <header className="App-header">
@@ -47,7 +62,8 @@ function AppContent() {
           Stop inspecting a class!
         </button>
         <div>Chosen IDs: {Object.keys(chosenIDs)}</div>
-        <div>Chosen Classes: {Object.keys(chosenClasses)}</div>
+        <div>Chosen Classes: {chosenClassContainers}</div>
+        <button onClick={() => applyAnimation()}>Apply Animation!</button>
         <AnimatedProperties />
       </header>
     </div>
