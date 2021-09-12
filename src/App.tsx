@@ -67,6 +67,15 @@ function AppContent() {
     ];
 
     dispatchPropertyData({
+      type: PropertyReducerActionTypes.CREATE_NEW_PROPERTY,
+      data: {
+        property: ANIMATABLE_PROPERTIES.width,
+        points: points,
+      },
+      timelineId: ANIMATABLE_PROPERTIES.width
+    });
+
+    dispatchPropertyData({
       type: PropertyReducerActionTypes.COMPUTE_STARTING_BEZIER_POINTS,
       data: { points: points },
       timelineId: ANIMATABLE_PROPERTIES.scale,
