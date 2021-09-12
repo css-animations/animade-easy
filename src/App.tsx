@@ -1,8 +1,19 @@
-import React, { useContext } from "react";
 import { DevToolContext, DevToolProvider } from "./DevToolContext";
 import logo from "./logo.svg";
-import AnimatedProperties from "./components/AnimatedProperties";
 import "./App.css";
+import React, { useState, useContext, useEffect, useReducer } from "react";
+import { AnimateProperties } from "./components/AnimateProperties";
+import KeyframeDetails from "./components/KeyframeDetails";
+import "./App.css";
+import { BezierComponent } from "./components/Canvas";
+import { Property } from "./types/propertyData";
+import {
+  propertyReducer,
+  PropertyReducerActionTypes,
+  propertyReducerDefaultState,
+} from "./utils/propertyDataReducer";
+import { Point } from "./types/bezier";
+import { ANIMATABLE_PROPERTIES } from "./components/NewChild";
 
 export default function AppWrapper() {
   return (
@@ -25,6 +36,10 @@ function AppContent() {
     applyAnimation,
     setChosenClasses,
   } = useContext(DevToolContext);
+  const [propertyData, dispatchPropertyData] = useReducer(
+    propertyReducer,
+    propertyReducerDefaultState,
+  );
 
   const chosenClassContainers = Object.keys(chosenClasses).map((sect) => (
     <span
@@ -39,10 +54,47 @@ function AppContent() {
       {sect}
     </span>
   ));
+
+
+  // Quickly calculates the correct bezier points from the starting points
+  useEffect(() => {
+    const points: Point[] = [
+      { x: 20, y: 400 },
+      { x: 100, y: 350 },
+      { x: 200, y: 200 },
+      { x: 300, y: 80 },
+      { x: 400, y: 30 },
+    ];
+
+    dispatchPropertyData({
+      type: PropertyReducerActionTypes.COMPUTE_STARTING_BEZIER_POINTS,
+      data: { points: points },
+      timelineId: ANIMATABLE_PROPERTIES.scale,
+    });
+  }, []);
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        <KeyframeDetails />
+        {propertyData.propertyMetadata.selectedProperty &&
+        propertyData.propertyMetadata.selectedProperty in
+          propertyData.properties ? (
+          <BezierComponent
+            propertyData={
+              propertyData.properties[
+                propertyData.propertyMetadata.selectedProperty
+              ] as Property
+            }
+            currentIndex={1}
+            width={400}
+            height={400}
+            timelineId={propertyData.propertyMetadata.selectedProperty}
+            dispatchPropertyData={dispatchPropertyData}
+          />
+        ) : (
+          <div>Select or create a property to view it's curve!</div>
+        )}
         <input
           type="number"
           value={from}
@@ -64,7 +116,6 @@ function AppContent() {
         <div>Chosen IDs: {Object.keys(chosenIDs)}</div>
         <div>Chosen Classes: {chosenClassContainers}</div>
         <button onClick={() => applyAnimation()}>Apply Animation!</button>
-        <AnimatedProperties />
       </header>
     </div>
   );

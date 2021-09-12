@@ -1,16 +1,17 @@
 import React, { useState } from "react";
-import Dropdown from "react-dropdown";
 
 interface OptionProps {
   name: string;
   value: string;
+  // possibleValues: string[];
+  // setValue: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 function Option(props: OptionProps) {
   const values = ["1", "2", "3"];
   const [value, setValue] = useState(props.value);
 
-  const handleValueChange = (newValue: string) => {
+  const handleValueChange = (newValue: typeof value) => {
     setValue(newValue);
   };
 

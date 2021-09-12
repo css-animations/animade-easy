@@ -52,7 +52,19 @@
     "@types/chrome": "^0.0.157",
     "@types/webextension-polyfill": "^0.8.0",
     "cross-env": "^7.0.3",
-    "devtools-protocol": "^0.0.919640",
+    "prettier": "^2.4.0",
     "web-ext": "^6.4.0"
+  },
+  "prettier": {
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": false,
+    "arrowParens": "always",
+    "bracketSpacing": true,
+    "proseWrap": "always",
+    "jsxBracketSameLine": false,
+    "quoteProps": "as-needed",
+    "trailingComma": "all",
+    "printWidth": 80
   }
 }
