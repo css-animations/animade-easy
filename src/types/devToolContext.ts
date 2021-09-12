@@ -1,12 +1,10 @@
 import { ANIMATABLE_PROPERTIES } from "../components/NewChild";
+import { AnimationOptions } from "./propertyData";
 
-export interface AnimationPropertyType {
+export interface AnimationPropertyType extends AnimationOptions{
   animationName: string;
   animationTypes: AnimationTypeDatum[];
-  duration: string;
-  direction?: string;
-  iterationCount?: string;
-  fillMode?: string;
+  duration: "5s";
 }
 
 interface AnimationTypeDatum {

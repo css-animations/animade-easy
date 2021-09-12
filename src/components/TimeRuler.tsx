@@ -1,51 +1,31 @@
 import React, { useEffect, useState } from "react";
-
+import {Labels} from './Labels';
+import stylus from '../assets/stylus.svg'
 interface Props{
   mouseX: number,
   mouseY: number,
   time: number,
   setTime: React.Dispatch<React.SetStateAction<number>>,
+  scrubberSelected: boolean,
+  setScrubberSelected: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
 export function TimeRuler(props: Props){
-    const [location, setLocation] = useState(0)
-    const [clicked, setClicked] = useState(false)
     var mousex = props.mouseX;
     const [bounds, setBounds] = useState({x:20,width:20})
-    var leftBound = bounds.x;
-    var rightBound = bounds.x + bounds.width;
-    
-    
 
-    function bounder(clicked:any){
-        let loc = 0;
-        if(clicked){
-            loc = mousex-20;
-        } else {
-            loc = location;
-        }
-        if (loc<leftBound) loc = leftBound;
-        if (loc>rightBound) loc = rightBound;
-        return `${loc}px` 
+    if (props.scrubberSelected) {
+      if(posToTime(mousex - bounds.x, bounds.width)  < 0) props.setTime(0);
+      else if(posToTime(mousex - bounds.x, bounds.width ) > 1) props.setTime(1);
+      else  props.setTime(posToTime(mousex - bounds.x, bounds.width) )
     }
 
-    function labels(totalTime:number){
-        let step = totalTime/20;
-        let children = []
-        for (let i = 0; i <= 20; i++) {
-            children.push(<p style = {{fontSize:"9px", flex:"1"}}>{i*step}</p>)
-        }
-        return children
-    }
     return(
-        <div style = {{width:"500px",height:"100px", backgroundColor:"green"}} 
-            onMouseUp = {() => {setClicked(false); setLocation(mousex-20)}}
-            onMouseLeave = {() => {if(clicked){setClicked(false); setLocation(mousex-20)}}}>
-            <div className = "TimeRulerContainer" style = {{width:"400px", height:"40px", backgroundColor:"blue", display:"flex", flexDirection:"row"}}
-                onMouseDown ={() => setClicked(true)}
+            <div className = "APRuler" 
+                onMouseDown ={() => props.setScrubberSelected(true)}
                 ref={el => {
                     if (!el) return;
-                    console.log("initial width", el.getBoundingClientRect().width);
+                    // console.log("initial width", el.getBoundingClientRect().width);
                     let prevValue = JSON.stringify(el.getBoundingClientRect());
                     const handle = setInterval(() => {
                       let nextValue = JSON.stringify(el.getBoundingClientRect());
@@ -58,11 +38,19 @@ export function TimeRuler(props: Props){
                     }, 100);
                   }}
                 >
-                <div style = {{width:"40px",height:"40px", backgroundColor:"red", position:"absolute", fontSize:"16px", left:bounder(clicked)}}>
-                    {bounder(clicked)}
+                <div className="disable-select APStylus" style = {{position:"absolute", left:`${timeToPos(props.time,bounds.width) + bounds.x -20}px`}}>
+                    <p className = "APStylusTXT disable-select">{(100*props.time).toFixed(1)}%</p>
+                    <img className = "APStylusSVG disable-select" src = {stylus}/>
                 </div>
-                {labels(40)}
+                <Labels className={"oogaloogabooga"} total={40} numTicks={10} ending={"s"} isRow={true}/>
             </div>
-        </div>
     )
+}
+
+function timeToPos (time:number, width:number) {
+  return (time*width)
+}
+
+function posToTime (Pos:number, width:number) {
+  return (Pos/width)
 }

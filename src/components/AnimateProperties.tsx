@@ -1,35 +1,54 @@
-import React, { useEffect, useState } from "react";
-import PropertyList from "./PropertyList"
-import {TimelineNav} from "./TimelineNav"
-import {KeyDot} from "./KeyDot"
+import React, { useState } from "react";
+import Property from "./Property";
+import NewChild, { NewChildPropTypes } from "./NewChild";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
 
-export function AnimateProperties(){
-    const useMousePosition = () => {
-        const [position, setPosition] = useState({ x: 0, y: 0 });
-      
-        useEffect(() => {
-          const setFromEvent = (e: any) => setPosition({ x: e.clientX, y: e.clientY });
-          window.addEventListener("mousemove", setFromEvent);
-      
-          return () => {
-            window.removeEventListener("mousemove", setFromEvent);
-          };
-        }, []);
-      
-        return position;
-      };
-    var mouseX = useMousePosition().x;
-    var mouseY = useMousePosition().y;
-    
-    return(
-        <div style ={{backgroundColor:"lightblue"}}>
-            AnimateProperties
-            <button>
-                NewKey
-            </button>
-            <TimelineNav mouseX = {mouseX} mouseY = {mouseY}></TimelineNav>
-            <PropertyList></PropertyList>
-            <KeyDot x = {700} y = {700} locked = {false} yLock = {100} xmin = {20} xmax = {500} selected = {false}></KeyDot>
-        </div>
-    )
+interface RowProps {
+  index: number;
+  propertyName: string;
 }
+
+function Row(props: RowProps) {
+  return (
+    <TableRow>
+      <TableCell
+        align="left"
+        style={{
+          border: 1,
+          borderStyle: "solid",
+          borderColor: "#599E40",
+        }}
+      >
+        <Property key={props.index} name={props.propertyName} />
+      </TableCell>
+    </TableRow>
+  );
+}
+
+export function AnimateProperties() {
+  const [propertiesArray, setPropertiesArray] = useState<string[]>([]);
+  return (
+    <div>
+      <h3>Animated Properties</h3>
+      <TableContainer>
+        <TableBody>
+          {propertiesArray.map((propertyName, index) => {
+            return <Row index={index} propertyName={propertyName} />;
+          })}
+        </TableBody>
+      </TableContainer>
+      <NewChild
+        type={NewChildPropTypes.PROPERTY}
+        children={propertiesArray}
+        setChildren={setPropertiesArray}
+      />
+    </div>
+  );
+}
+

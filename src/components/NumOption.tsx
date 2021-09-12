@@ -20,9 +20,10 @@ function Option(props: OptionProps) {
   };
 
   return (
-    <div>
+    <div className = "NumOption">
       {props.name}
       <input
+        className="inputBox"
         type="number"
         id={props.name}
         name={props.name}
