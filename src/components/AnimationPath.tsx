@@ -14,6 +14,7 @@ import { PropertyDataContext } from "./PropertyDataContext";
 import { CreateLUT } from "../utils/bezier";
 import { AnimationPropertyType, ScaleTypeAnimation } from "../types/devToolContext";
 import { ANIMATABLE_PROPERTIES } from "./NewChild";
+import { keys } from "@material-ui/core/styles/createBreakpoints";
 
 export function AnimationPath() {
   const { resetCSS, injectCSSAnimation, chosenClasses, chosenIDs, injectCSSAnimationClasses } =
@@ -46,9 +47,10 @@ export function AnimationPath() {
     if (playing) resetCSS();
     else if (chosenClasses !== "") {
       let animationClasses: AnimationPropertyType[] = [];
-      let propertyDatumKey: keyof ANIMATABLE_PROPERTIES;
-      // @ts-ignore
-      for (propertyDatumKey in propertyData.properties) {
+      console.log({ things: Object.keys(propertyData.properties) });
+      for (const propertyDatumKey of Object.keys(propertyData.properties)) {
+        // @ts-ignore
+        console.log(propertyData.properties[propertyDatumKey].animationOptions)
         const animationClass = {
           // @ts-ignore
           ...propertyData.properties[propertyDatumKey].animationOptions,
@@ -63,9 +65,14 @@ export function AnimationPath() {
           CreateLUT(propertyData.properties[propertyDatumKey]._keyframes).map((value) => value.y),
         );
       }
-      const chosenClassNames = Object.keys(chosenClasses).map((sect) => "." + sect);
-      const chosenIDNames = Object.keys(chosenIDs).map((sect) => "#" + sect);
-      injectCSSAnimationClasses(animationClasses, [...chosenClassNames, ...chosenIDNames]);
+      const chosenClassNames =
+        Object.keys(chosenClasses).length > 0
+          ? Object.keys(chosenClasses).map((sect) => "." + sect)
+          : [];
+      const chosenIDNames =
+        Object.keys(chosenIDs).length > 0 ? Object.keys(chosenIDs).map((sect) => "#" + sect) : [];
+      const selectors = [...chosenClassNames, ...chosenIDNames];
+      injectCSSAnimationClasses(animationClasses, selectors) ;
     }
     setPlaying(!playing);
   };

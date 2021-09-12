@@ -23,7 +23,7 @@ export function AppWrapper() {
 function AppContent() {
   const [headContent, setHeadContent] = useState("");
   const { propertyData, dispatchPropertyData } = useContext(PropertyDataContext);
-  const { attachInspect } = useContext(DevToolContext);
+  const { attachInspect, chosenClasses, chosenIDs } = useContext(DevToolContext);
 
   //grab initial head content onMount
   useEffect(() => {
@@ -63,6 +63,7 @@ function AppContent() {
         <div className="buttonWrapper">
           <button className="AttachAnimation" onClick={() => attachInspect()}>AttachAnimation</button>
         </div>
+        <div></div>
         <AnimateProperties />
         <AnimationPath />
         <KeyframeDetails />
