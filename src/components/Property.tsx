@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import NewChild, { NewChildPropTypes } from "./NewChild";
 import Option from "./Option";
-import IconButton from '@material-ui/core/IconButton'
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import { PropertyDataContext, PropertyDataProvider } from "./PropertyDataContext";
+import IconButton from "@material-ui/core/IconButton";
+import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 
 interface PropertyProps {
   // keyframes: Keyframe;
@@ -15,12 +16,14 @@ function Property(props: PropertyProps) {
   const [animationOptions, setAnimationOptions] = useState<string[]>([]);
   // const [optionValues, setOptionValues] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
+  const { propertyData, dispatchPropertyData } = useContext(PropertyDataContext);
 
   const handleClick = () => {
     setOpen(!open);
-  }
+  };
 
   function animationList() {
+    console.log(propertyData);
     return (
       <div>
         {animationOptions.map((optionName, index) => {

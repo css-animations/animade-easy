@@ -73,7 +73,6 @@ interface SET_ANIMATION_VALUE extends GeneralPropertyReducerActions {
   type: PropertyReducerActionTypes.SET_ANIMATION_VALUE;
   data: {
     animationOptions: AnimationOptions;
-    optionValue: string | number | undefined;
   };
 }
 
@@ -97,6 +96,7 @@ export type PropertyReducerActions =
   | SET_SELECTED_PROPERTY
   | SET_ANIMATION_OPTIONS
   | SET_ANIMATION_VALUE
+  | MODIFY_ANIMATION_OPTIONS
   | CREATE_NEW_KEYFRAME;
 
 export function propertyReducer(state: PropertyData, action: PropertyReducerActions): PropertyData {
