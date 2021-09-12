@@ -27,18 +27,7 @@ class PropertyFunctions {
   static bezierHeight: number;
 
   /// Get the percent (0-1) from a state
-  static getKeyframePercent(
-    keyframes: AbsoluteBezierPoint[],
-    index: number,
-  ): Point | undefined {
-    if (keyframes.length > index) {
-      return {
-        x: keyframes[index].pt.x / PropertyFunctions.bezierWidth,
-        y: -1 * (keyframes[index].pt.y / PropertyFunctions.bezierHeight) + 1,
-      };
-    }
-    return undefined;
-  }
+
 
   /// Set the percent (from 0-1) that a keyframe animation should be
 
@@ -67,6 +56,21 @@ export function setKeyframePercent(
       timelineId,
     });
   }
+}
+
+export function getKeyframePercent(
+  keyframes: AbsoluteBezierPoint[],
+  index: number,
+  bezierWidth: number,
+  bezierHeight: number,
+): Point | undefined {
+  if (keyframes.length > index) {
+    return {
+      x: keyframes[index].pt.x / bezierWidth,
+      y: -1 * (keyframes[index].pt.y / bezierHeight) + 1,
+    };
+  }
+  return undefined;
 }
 
 export interface Property {

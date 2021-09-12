@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {TimeRuler} from "./TimeRuler";
 import {Labels} from './Labels';
+import {BezierComponent} from './Canvas'
 
 import IconButton from "@material-ui/core/IconButton";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
@@ -46,15 +47,14 @@ export function AnimationPath(){
     }
 
     const handleRewind = () => {
-        setTime(time - 1);
+        setTime(time - .01);
     }
-    
     return(
-        <div className="TimelineNav" 
+        <div className="APContainer" 
             onMouseUp = {() => {setScrubberSellected(false)}}
             onMouseLeave = {() => {if(scrubberSelected){setScrubberSellected(false)}}}
-            style = {{width:"600px", backgroundColor:"lightblue"}}>TimelineNav
-            <div>
+            style = {{width:"600px", backgroundColor:"lightblue"}}>AnimationPath
+            <div className = "APIconBar">
                 <IconButton onClick={togglePlay}>
                     {playing ? <PauseIcon /> : <PlayArrowIcon />}
                 </IconButton>
@@ -70,11 +70,11 @@ export function AnimationPath(){
             </div>
             <div>
                 <TimeRuler time = {time} setTime = {setTime} mouseX = {mouseX} mouseY = {mouseY} scrubberSelected = {scrubberSelected} setScrubberSelected = {setScrubberSellected}></TimeRuler>
-                {/* <BezierComponent
+                <BezierComponent
                     currentIndex={1}
-                    width={400}
-                    height={400}
-                    /> */}
+                    width={1000}
+                    height={1000}
+                    />
                 <Labels total={40} numTicks={10} ending={"px"} isRow={true}/>
                 <Labels total={40} numTicks={10} ending={"px"} isRow={false}/>
             </div>

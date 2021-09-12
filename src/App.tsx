@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useState, useEffect, useReducer, useContext } from "react";
 import { AnimateProperties } from "./components/AnimateProperties";
 import KeyframeDetails from "./components/KeyframeDetails";
 import "./App.css";
@@ -13,13 +13,19 @@ import {
 import { Point } from "./types/bezier";
 import { ANIMATABLE_PROPERTIES } from "./components/NewChild";
 import { AnimationPath } from "./components/AnimationPath"
+import { PropertyDataContext, PropertyDataProvider } from "./components/PropertyDataContext";
 
-export function App() {
-  const [headContent, setHeadContent] = useState("");
-  const [propertyData, dispatchPropertyData] = useReducer(
-    propertyReducer,
-    propertyReducerDefaultState,
+export function AppWrapper() {
+  return (
+    <PropertyDataProvider>
+      <AppContent />
+    </PropertyDataProvider>
   );
+}
+
+function AppContent() {
+  const [headContent, setHeadContent] = useState("");
+  const { propertyData, dispatchPropertyData } = useContext(PropertyDataContext);
 
   //grab initial head content onMount
   useEffect(() => {
@@ -44,7 +50,7 @@ export function App() {
         animationOptions: {},
         points: points,
       },
-      timelineId: ANIMATABLE_PROPERTIES.width
+      timelineId: ANIMATABLE_PROPERTIES.width,
     });
 
     dispatchPropertyData({

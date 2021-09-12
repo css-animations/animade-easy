@@ -1,23 +1,17 @@
-import React, { RefObject, useEffect, useRef, useState } from "react";
+import React, { RefObject, useContext, useEffect, useRef, useState } from "react";
 import { AbsoluteBezierPoint, heldItemData, Point } from "../types/bezier";
-import { Property } from "../types/propertyData";
-import {
-  PropertyReducerActions,
-  PropertyReducerActionTypes,
-} from "../utils/propertyDataReducer";
+import { Property, PropertyData } from "../types/propertyData";
+import { PropertyReducerActions, PropertyReducerActionTypes } from "../utils/propertyDataReducer";
 import { ANIMATABLE_PROPERTIES } from "./NewChild";
 import { drawDot, GetPointAtT, CreateLUT } from "../utils/bezier";
+import { PropertyDataContext } from "./PropertyDataContext";
 
 type CanvasProps = React.DetailedHTMLProps<
   React.CanvasHTMLAttributes<HTMLCanvasElement>,
   HTMLCanvasElement
 >;
 
-function pointCollision(
-  targetPoint: Point,
-  testPoint: Point,
-  distance: number,
-) {
+function pointCollision(targetPoint: Point, testPoint: Point, distance: number) {
   if (
     Math.abs(targetPoint.x - testPoint.x) < distance &&
     Math.abs(targetPoint.y - testPoint.y) < distance
@@ -26,10 +20,7 @@ function pointCollision(
   return false;
 }
 
-function drawDebugLines(
-  curves: AbsoluteBezierPoint[],
-  context: CanvasRenderingContext2D,
-) {
+function drawDebugLines(curves: AbsoluteBezierPoint[], context: CanvasRenderingContext2D) {
   for (let i = 1; i < curves.length - 1; i++) {
     // Line between point 0 and 2
     const zero = i;
@@ -46,10 +37,7 @@ function drawDebugLines(
   }
 }
 
-function drawBezier(
-  curves: AbsoluteBezierPoint[],
-  context: CanvasRenderingContext2D,
-) {
+function drawBezier(curves: AbsoluteBezierPoint[], context: CanvasRenderingContext2D) {
   for (const item of curves) {
     drawDot(context, item.pt, 8, "#F1FFF3");
   }
@@ -76,7 +64,10 @@ function drawBezier(
   }
   context.stroke();
   context.closePath();
-  CreateLUT(curves, context)
+
+  for (const point of CreateLUT(curves)) {
+    drawDot(context, point, 5, "blue");
+  }
 }
 
 function getMousePos(
@@ -93,18 +84,51 @@ function getMousePos(
 }
 
 interface BezierInterface extends CanvasProps {
+  currentIndex: number;
+}
+
+export function BezierComponent(props: BezierInterface) {
+  const { propertyData, dispatchPropertyData } = useContext(PropertyDataContext);
+
+  if (propertyData.propertyMetadata.selectedProperty === undefined) {
+    return (
+      <div>
+        It appears you don't have a property selected! Please select or create one to view and edit
+        it's curves.
+      </div>
+    );
+  }
+
+  if (
+    propertyData.properties[propertyData.propertyMetadata.selectedProperty] === undefined ||
+    propertyData.properties[propertyData.propertyMetadata.selectedProperty]?._keyframes ===
+      undefined
+  )
+    return <div>You must make at least one keyframe.</div>;
+  return (
+    <InternalBezierComponent
+      selectedProperty={
+        propertyData.properties[propertyData.propertyMetadata.selectedProperty] as Property
+      }
+      dispatchPropertyData={dispatchPropertyData}
+      currentIndex={props.currentIndex}
+      timelineId={propertyData.propertyMetadata.selectedProperty}
+    />
+  );
+}
+
+interface InternalBezierInterface extends CanvasProps {
   selectedProperty: Property;
   dispatchPropertyData: React.Dispatch<PropertyReducerActions>;
   currentIndex: number;
   timelineId: ANIMATABLE_PROPERTIES;
 }
 
-export function BezierComponent(props: BezierInterface) {
+export function InternalBezierComponent(props: InternalBezierInterface) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mouseDown, setMouseDown] = useState<boolean>(false);
-  const [heldIndex, setHeldIndex] = useState<heldItemData | undefined>(
-    undefined,
-  );
+  const [heldIndex, setHeldIndex] = useState<heldItemData | undefined>(undefined);
+
   // Currently Selected (from system)
   const [coord, setCoord] = useState<Point>({ x: 0, y: 0 });
 
@@ -130,8 +154,7 @@ export function BezierComponent(props: BezierInterface) {
     getMousePos(canvasRef, event, setCoord);
     for (let index = 0; index < props.selectedProperty._keyframes.length; index++) {
       const relativeBezierPoint = props.selectedProperty._keyframes[index];
-      if (pointCollision(relativeBezierPoint.pt, coord, 10))
-        setHeldIndex({ index, field: "pt" });
+      if (pointCollision(relativeBezierPoint.pt, coord, 10)) setHeldIndex({ index, field: "pt" });
       else if (pointCollision(relativeBezierPoint.ctrlPt1A, coord, 10))
         setHeldIndex({ index, field: "ctrlPt1A" });
       else if (pointCollision(relativeBezierPoint.ctrlPt2A, coord, 10))
@@ -157,12 +180,7 @@ export function BezierComponent(props: BezierInterface) {
       if (mouseDown && heldIndex !== undefined) {
         switch (heldIndex.field) {
           case "pt":
-            drawDot(
-              context,
-              props.selectedProperty._keyframes[heldIndex.index].pt,
-              4,
-              "#0E2606",
-            );
+            drawDot(context, props.selectedProperty._keyframes[heldIndex.index].pt, 4, "#0E2606");
             break;
           case "ctrlPt1A":
             drawDot(

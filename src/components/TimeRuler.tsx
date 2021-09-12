@@ -39,7 +39,7 @@ export function TimeRuler(props: Props){
                   }}
                 >
                 <div className="disable-select" style = {{width:"40px",height:"40px", backgroundColor:"red", position:"absolute", fontSize:"16px", left:`${timeToPos(props.time,bounds.width) + bounds.x -20}px`}}>
-                    {100*props.time}%
+                    {(100*props.time).toFixed(1)}%
                 </div>
                 <Labels  total={40} numTicks={10} ending={"px"} isRow={true}/>
             </div>
