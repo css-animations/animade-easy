@@ -52,8 +52,9 @@ export function AnimationPath(){
     return(
         <div className="APContainer" 
             onMouseUp = {() => {setScrubberSellected(false)}}
-            onMouseLeave = {() => {if(scrubberSelected){setScrubberSellected(false)}}}
-            style = {{width:"600px", backgroundColor:"lightblue"}}>AnimationPath
+            onMouseLeave = {() => {if(scrubberSelected){setScrubberSellected(false)}}}>
+            <h2>AnimationPath</h2>
+
             <div className = "APIconBar">
                 <IconButton onClick={togglePlay}>
                     {playing ? <PauseIcon /> : <PlayArrowIcon />}
@@ -67,16 +68,18 @@ export function AnimationPath(){
                 <IconButton onClick={handleSkipForward}>
                     <ArrowForwardIcon />
                 </IconButton>
+                <div style = {{flex:"1"}}></div>
+                <button className = "APAddKey">Add New Key Placeholder</button>
             </div>
-            <div>
+            <div className = "APBlackBoard">
+                <div className = {"APBlank disable-select"}>.</div>
                 <TimeRuler time = {time} setTime = {setTime} mouseX = {mouseX} mouseY = {mouseY} scrubberSelected = {scrubberSelected} setScrubberSelected = {setScrubberSellected}></TimeRuler>
+                <Labels className = {"APyLabel"} total={100} numTicks={5} ending={"%"} isRow={false}/>
                 <BezierComponent
                     currentIndex={1}
-                    width={1000}
-                    height={1000}
+                    width={400}
+                    height={300}
                     />
-                <Labels total={40} numTicks={10} ending={"px"} isRow={true}/>
-                <Labels total={40} numTicks={10} ending={"px"} isRow={false}/>
             </div>
         </div>
     )

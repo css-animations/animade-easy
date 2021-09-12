@@ -214,6 +214,7 @@ export function InternalBezierComponent(props: InternalBezierInterface) {
 
   return (
     <canvas
+      className = "APBezierComponent"
       onMouseMove={(event) => handleMouseMove(canvasRef, event)}
       onMouseDown={(event) => handleMouseDown(canvasRef, event)}
       onMouseOut={handleMouseUp}

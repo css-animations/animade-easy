@@ -15,11 +15,11 @@ function KeyframeDetails() {
   //   const [tension, setTension] = useState(50);
 
   return (
-    <div>
-      <h3>Keyframe Details</h3>
-      <NumOption name="Time" value={10} />
-      <NumOption name="Property Value" value={12} max={100} />
-      <NumOption name="Tension" value={50} max={100} />
+    <div className = "KDWrapper">
+      <h2 className = "KDHead">Keyframe Details</h2>
+      <NumOption name="Time: " value={10} />
+      <NumOption name="Property Value: " value={12} max={100} />
+      <NumOption name="Tension: " value={50} max={100} />
     </div>
   );
 }

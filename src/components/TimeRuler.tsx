@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {Labels} from './Labels';
-
+import stylus from '../assets/stylus.svg'
 interface Props{
   mouseX: number,
   mouseY: number,
@@ -21,7 +21,7 @@ export function TimeRuler(props: Props){
     }
 
     return(
-            <div className = "TimeRulerContainer" style = {{width:"400px", height:"40px", backgroundColor:"lightpink", display:"flex", flexDirection:"row"}}
+            <div className = "APRuler" 
                 onMouseDown ={() => props.setScrubberSelected(true)}
                 ref={el => {
                     if (!el) return;
@@ -38,10 +38,11 @@ export function TimeRuler(props: Props){
                     }, 100);
                   }}
                 >
-                <div className="disable-select" style = {{width:"40px",height:"40px", backgroundColor:"red", position:"absolute", fontSize:"16px", left:`${timeToPos(props.time,bounds.width) + bounds.x -20}px`}}>
-                    {(100*props.time).toFixed(1)}%
+                <div className="disable-select APStylus" style = {{position:"absolute", left:`${timeToPos(props.time,bounds.width) + bounds.x -20}px`}}>
+                    <p className = "APStylusTXT disable-select">{(100*props.time).toFixed(1)}%</p>
+                    <img className = "APStylusSVG disable-select" src = {stylus}/>
                 </div>
-                <Labels  total={40} numTicks={10} ending={"px"} isRow={true}/>
+                <Labels className={"oogaloogabooga"} total={40} numTicks={10} ending={"s"} isRow={true}/>
             </div>
     )
 }

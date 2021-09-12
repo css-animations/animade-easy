@@ -3,6 +3,7 @@ interface Props{
     numTicks:number,
     ending:string,
     isRow:boolean,
+    className:string,
 }
 
 export function Labels(props:Props){
@@ -14,8 +15,8 @@ export function Labels(props:Props){
             </p>)
     }
     return (
-        <div style = {props.isRow?{display:"flex", justifyContent:"space-between", alignItems:"center", width:"100%"}:
-        {display:"flex", flexDirection:"column", justifyContent:"space-between", alignItems:"center", width:"100%"}}>
+        <div className = {props.className} style = {props.isRow?{display:"flex", justifyContent:"space-between", alignItems:"center", width:"100%"}:
+        {display:"flex", flexDirection:"column-reverse", justifyContent:"space-between", alignItems:"center", width:"100%"}}>
             {children}
         </div>
     )
