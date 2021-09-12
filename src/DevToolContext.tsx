@@ -11,29 +11,28 @@ const importantAttributesHash: any = {
   class: true,
   id: true,
 };
-const defaultAnimationProperty: animationPropertyType = {
-  animationName: "hello",
-  value: "idk",
-  direction: "left",
-  duration: "5s",
-};
+
+export interface AnimationPropertyType {
+  animationName: string;
+  animationTypes: AnimationTypeDatum[];
+  direction: string;
+  duration: string;
+}
 
 interface AnimationTypeDatum {
   animationType: ANIMATABLE_PROPERTIES;
   formatFunction: (rawData: string) => string;
 }
-const ScaleTypeAnimation: AnimationTypeDatum = {
+export const ScaleTypeAnimation: AnimationTypeDatum = {
   animationType: ANIMATABLE_PROPERTIES.scale,
   formatFunction: (rawData: string): string => `transform: scale(${rawData});`,
 };
 
-//easing is linear cuz the animation handles it
-export interface animationPropertyType {
-  animationName: string;
-  value: string;
-  direction: string;
-  duration: string;
-}
+export const RotateTypeAnimation: AnimationTypeDatum = {
+  animationType: ANIMATABLE_PROPERTIES.rotate,
+  formatFunction: (rawData: string) => `transform: rotate(${rawData}deg)`,
+};
+
 interface propertyType {
   name: string;
   value: string;
@@ -63,7 +62,7 @@ interface DevToolContextType {
   setChosenClasses: React.Dispatch<React.SetStateAction<{}>>;
   chosenIDs: {};
   injectCSSAnimation: (
-    animationTitle: string,
+    animationObj: AnimationPropertyType,
     percentageList: number[],
   ) => void;
   injectCSSAnimationClasses: (
@@ -86,7 +85,10 @@ const defaultDevContext: DevToolContextType = {
   chosenClasses: {},
   setChosenClasses: () => {},
   chosenIDs: {},
-  injectCSSAnimation: (animationTitle: string, percentageList: number[]) => {},
+  injectCSSAnimation: (
+    animationObj: AnimationPropertyType,
+    percentageList: number[],
+  ) => {},
   injectCSSAnimationClasses: (
     animationClasses: animationPropertyType[],
     classNames: string[],
@@ -307,7 +309,7 @@ export function DevToolProvider(props: DevToolProps) {
 
   //function to inject CSS Animation
   async function injectCSSAnimation(
-    animationTitle: string,
+    animationObj: AnimationPropertyType,
     percentageList: number[],
   ) {
     const tab = await getCurrentTab();
@@ -326,13 +328,14 @@ export function DevToolProvider(props: DevToolProps) {
       //CHOOSE FROM POINTS SOMEHOW BY INCREMENTING I HERE
     }
     //const newAnimationPercentages = [0, 0.13, 0.8, 1].map((perc) => perc * 100);
-    let newCSS = `@keyframes ${animationTitle} {`;
+    let newCSS = `@keyframes ${animationObj.animationName} {`;
     for (const percentage of newAnimationPercentages) {
       newCSS += `
-      ${percentage}% {
-        transform: rotate(${(360 / 100) * percentage}deg);
+      ${percentage}% {`;
+      for (const property of animationObj.animationTypes) {
+        newCSS += `
+        ${property.formatFunction("75")};`;
       }
-      `;
     }
     newCSS += `
   }
@@ -346,7 +349,7 @@ export function DevToolProvider(props: DevToolProps) {
       setInjectedStyles((prevStyles) => [...prevStyles, newInjection]);
       setInjectedAnimations((prevAnimations) => [
         ...prevAnimations,
-        animationTitle,
+        animationObj.animationName,
       ]);
       console.log("Added animation!");
     });

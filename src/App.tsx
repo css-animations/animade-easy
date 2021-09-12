@@ -8,15 +8,26 @@ import "./App.css";
 import { BezierComponent } from "./components/Canvas";
 import { Property } from "./types/propertyData";
 import {
+  AnimationPropertyType,
+  ScaleTypeAnimation,
+  RotateTypeAnimation,
+} from "./DevToolContext";
+import {
   propertyReducer,
   PropertyReducerActionTypes,
   propertyReducerDefaultState,
 } from "./utils/propertyDataReducer";
 import { Point } from "./types/bezier";
 import { ANIMATABLE_PROPERTIES } from "./components/NewChild";
-import { animationPropertyType } from "./DevToolContext";
 
 const TEST_DATA = [0, 0.13, 0.8, 1];
+
+const TEST_TYPE: AnimationPropertyType = {
+  animationTypes: [RotateTypeAnimation, ScaleTypeAnimation],
+  animationName: "floop",
+  direction: "reverse",
+  duration: "infinite",
+};
 
 const TEST_STUFF: animationPropertyType[] = [
   {
