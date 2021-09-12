@@ -16,7 +16,7 @@ export function Labels(props:Props){
     }
     return (
         <div className = {props.className} style = {props.isRow?{display:"flex", justifyContent:"space-between", alignItems:"center", width:"100%"}:
-        {display:"flex", flexDirection:"column", justifyContent:"space-between", alignItems:"center", width:"100%"}}>
+        {display:"flex", flexDirection:"column-reverse", justifyContent:"space-between", alignItems:"center", width:"100%"}}>
             {children}
         </div>
     )

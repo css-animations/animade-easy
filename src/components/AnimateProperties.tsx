@@ -5,12 +5,8 @@ import {KeyDot} from "./KeyDot"
 export function AnimateProperties(){
     return(
         <div>
-            AnimateProperties
-            <button>
-                NewKey
-            </button>
+            <h2>Animated Properties</h2>
             <PropertyList></PropertyList>
-            <KeyDot x = {700} y = {700} locked = {false} yLock = {100} xmin = {20} xmax = {500} selected = {false}></KeyDot>
         </div>
     )
 }
