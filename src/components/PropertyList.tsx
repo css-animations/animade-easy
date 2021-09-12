@@ -29,7 +29,7 @@ function Row(props: RowProps) {
   </TableRow>);
 }
 
-function AnimatedProperties() {
+function PropertyList() {
   const [propertiesArray, setPropertiesArray] = useState<string[]>([]);
   return (
     <div>
@@ -51,4 +51,4 @@ function AnimatedProperties() {
   );
 }
 
-export default AnimatedProperties;
+export default PropertyList;
