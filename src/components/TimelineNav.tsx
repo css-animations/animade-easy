@@ -10,6 +10,8 @@ import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 interface Props{
     mouseX: number,
     mouseY: number,
+    scrubberSelected: boolean,
+    setScrubberSelected: React.Dispatch<React.SetStateAction<boolean>>,
 }
 export function TimelineNav(props: Props){
     const [time, setTime] = useState(0);
@@ -30,7 +32,7 @@ export function TimelineNav(props: Props){
                     <ArrowForwardIcon />
                 </IconButton>
             </div>
-            <TimeRuler time = {time} setTime = {setTime} mouseX = {props.mouseX} mouseY = {props.mouseY}></TimeRuler>
+            <TimeRuler time = {time} setTime = {setTime} mouseX = {props.mouseX} mouseY = {props.mouseY} scrubberSelected = {props.scrubberSelected} setScrubberSelected = {props.setScrubberSelected}></TimeRuler>
         </div>
     )
 }
