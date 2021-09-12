@@ -1,10 +1,11 @@
 import React, { RefObject, useEffect, useRef, useState } from "react";
 import { AbsoluteBezierPoint, heldItemData, Point } from "../types/bezier";
-import { Property, PropertyData, PropertyType } from "../types/propertyData";
+import { Property } from "../types/propertyData";
 import {
   PropertyReducerActions,
   PropertyReducerActionTypes,
 } from "../utils/propertyDataReducer";
+import { ANIMATABLE_PROPERTIES } from "./NewChild";
 
 type CanvasProps = React.DetailedHTMLProps<
   React.CanvasHTMLAttributes<HTMLCanvasElement>,
@@ -105,7 +106,7 @@ interface BezierInterface extends CanvasProps {
   propertyData: Property;
   dispatchPropertyData: React.Dispatch<PropertyReducerActions>;
   currentIndex: number;
-  timelineId: PropertyType;
+  timelineId: ANIMATABLE_PROPERTIES;
 }
 
 export function BezierComponent(props: BezierInterface) {

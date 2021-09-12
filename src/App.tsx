@@ -3,13 +3,14 @@ import { AnimateProperties } from "./components/AnimateProperties";
 import KeyframeDetails from "./components/KeyframeDetails";
 import "./App.css";
 import { BezierComponent } from "./components/Canvas";
-import { Property, PropertyType } from "./types/propertyData";
+import { Property } from "./types/propertyData";
 import {
   propertyReducer,
   PropertyReducerActionTypes,
   propertyReducerDefaultState,
 } from "./utils/propertyDataReducer";
 import { Point } from "./types/bezier";
+import { ANIMATABLE_PROPERTIES } from "./components/NewChild";
 
 export function App() {
   const [headContent, setHeadContent] = useState("");
@@ -37,7 +38,7 @@ export function App() {
     dispatchPropertyData({
       type: PropertyReducerActionTypes.COMPUTE_STARTING_BEZIER_POINTS,
       data: { points: points },
-      timelineId: PropertyType.SCALE,
+      timelineId: ANIMATABLE_PROPERTIES.scale,
     });
   }, []);
 

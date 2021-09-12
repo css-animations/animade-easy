@@ -6,11 +6,7 @@ import {
   PropertyReducerActionTypes,
 } from "../utils/propertyDataReducer";
 import React from "react";
-
-export enum PropertyType {
-  SCALE = "scale",
-  TRANSFORM = "transform",
-}
+import { ANIMATABLE_PROPERTIES } from "../components/NewChild";
 
 enum AnimationDirections {}
 
@@ -46,7 +42,6 @@ class PropertyFunctions {
 
   /// Set the percent (from 0-1) that a keyframe animation should be
 
-
   /// Number from 0-1 representing the percentage of progress through the animation.
   /// The function returns the text of a keyframe at that point in time.
   // keyframesAsCss(t: number): string {}
@@ -56,7 +51,7 @@ export function setKeyframePercent(
   keyframes: AbsoluteBezierPoint[],
   percent: Point,
   index: number,
-  timelineId: PropertyType,
+  timelineId: ANIMATABLE_PROPERTIES,
   bezierWidth: number,
   bezierHeight: number,
   dispatchPropertyData: React.Dispatch<PropertyReducerActions>,
@@ -80,11 +75,11 @@ export interface Property {
 }
 
 export interface PropertyMetadata {
-  selectedProperty?: PropertyType;
+  selectedProperty?: ANIMATABLE_PROPERTIES;
 }
 
 type Properties = {
-  [key in PropertyType]?: Property;
+  [key in ANIMATABLE_PROPERTIES]?: Property;
 };
 
 export type PropertyData = {

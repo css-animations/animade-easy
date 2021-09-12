@@ -2,21 +2,22 @@ import { computeStartingBezierPoints, setCurvePointByIndex } from "./bezier";
 import {
   AnimationOptions,
   PropertyData,
-  PropertyType,
 } from "../types/propertyData";
 import { AbsoluteBezierPoint, heldItemData, Point } from "../types/bezier";
+import { ANIMATABLE_PROPERTIES } from "../components/NewChild";
 
 export enum PropertyReducerActionTypes {
   SET_CURVE_POINT_BY_INDEX = "SET_CURVE_POINT_BY_INDEX",
   SET_CURVE_POINT_BY_INDEX_PERCENT = "SET_CURVE_POINT_BY_INDEX_PERCENT",
   COMPUTE_STARTING_BEZIER_POINTS = "COMPUTE_STARTING_BEZIER_POINTS",
   CREATE_NEW_PROPERTY = "CREATE_NEW_PROPERTY",
+  SET_SELECTED_PROPERTY = "SET_SELECTED_PROPERTY",
   CREATE_NEW_KEYFRAME = "CREATE_NEW_KEYFRAME",
   MODIFY_ANIMATION_OPTIONS = "MODIFY_ANIMATION_OPTIONS",
 }
 
 interface GeneralPropertyReducerActions {
-  timelineId: PropertyType;
+  timelineId: ANIMATABLE_PROPERTIES;
 }
 
 interface SET_CURVE_BY_INDEX_ACTION extends GeneralPropertyReducerActions {
@@ -42,6 +43,13 @@ interface CREATE_NEW_PROPERTY extends GeneralPropertyReducerActions {
   };
 }
 
+interface SET_SELECTED_PROPERTY extends GeneralPropertyReducerActions {
+  type: PropertyReducerActionTypes.SET_SELECTED_PROPERTY;
+  data: {
+    property: ANIMATABLE_PROPERTIES
+  };
+}
+
 interface SET_CURVE_POINT_BY_INDEX_PERCENT
   extends GeneralPropertyReducerActions {
   type: PropertyReducerActionTypes.SET_CURVE_POINT_BY_INDEX_PERCENT;
@@ -57,7 +65,8 @@ export type PropertyReducerActions =
   | SET_CURVE_BY_INDEX_ACTION
   | SET_CURVE_POINT_BY_INDEX_PERCENT
   | COMPUTE_STARTING_BEZIER_POINTS
-  | CREATE_NEW_PROPERTY;
+  | CREATE_NEW_PROPERTY
+  | SET_SELECTED_PROPERTY;
 
 export function propertyReducer(
   state: PropertyData,
