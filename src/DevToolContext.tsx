@@ -349,7 +349,7 @@ export function DevToolProvider(props: DevToolProps) {
         transform: rotate(${(360 / 100) * from}deg);
       }
       to {
-        transform: rotate(${(360 / 100) * to}deg);
+        transform: rotate(${(360 / 100) * to + 0.01}deg);
       }
     }
     ${chosenSelector} {
