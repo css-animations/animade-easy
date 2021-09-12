@@ -75,84 +75,112 @@ export function DevToolProvider(props: DevToolProps) {
   const [chosenIDs, setChosenIDs] = useState({});
 
   //function that listens
-  async function debugListener(source: any, method: any, params: any) {
-    const tab = await getCurrentTab();
-    if (!tab && tab !== 0) return;
-    const debugee = {
-      tabId: tab.id,
-    };
-    //alert(source);
-    console.log(method);
-    //console.log the styles as necessary
-    if (method === "Overlay.inspectNodeRequested") {
-      //alert(params);
-      console.log(params);
-      const backendId = params.backendNodeId;
-      chrome.debugger.sendCommand(
-        debugee,
-        "DOM.describeNode",
-        {
-          backendNodeId: backendId,
-        },
-        (res: any) => {
-          console.log(res);
-          const node: devtoolsProtocol.Protocol.DOM.Node = res.node;
-          const attributes = node.attributes;
-          if (!attributes) return;
-          const properties: propertyType[] = [];
-          for (let i = 0; i < attributes.length - 1; i++) {
-            const deets = attributes[i];
-            if (importantAttributesHash[deets]) {
-              properties.push({
-                name: deets,
-                value: attributes[i + 1],
-              });
-              i++;
+  var debugListener = useCallback(
+    async function debugListenerFunc(source: any, method: any, params: any) {
+      const tab = await getCurrentTab();
+      if (!tab && tab !== 0) return;
+      const debugee = {
+        tabId: tab.id,
+      };
+      //alert(source);
+      console.log(method);
+      //console.log the styles as necessary
+      if (method === "Overlay.inspectNodeRequested") {
+        //alert(params);
+        console.log(params);
+        const backendId = params.backendNodeId;
+        chrome.debugger.sendCommand(
+          debugee,
+          "DOM.describeNode",
+          {
+            backendNodeId: backendId,
+          },
+          (res: any) => {
+            console.log(res);
+            const node: devtoolsProtocol.Protocol.DOM.Node = res.node;
+            const attributes = node.attributes;
+            if (!attributes) return;
+            const properties: propertyType[] = [];
+            for (let i = 0; i < attributes.length - 1; i++) {
+              const deets = attributes[i];
+              if (importantAttributesHash[deets]) {
+                properties.push({
+                  name: deets,
+                  value: attributes[i + 1],
+                });
+                i++;
+              }
             }
-          }
-          console.log(properties);
-          for (const property of properties) {
-            if (property.name === "class") {
-              const classes = property.value.split(" ");
-              //get list of classes of DOM node
-              for (const currClass of classes) {
-                injectCSS("." + currClass);
-                setChosenClasses((prevClasses) => ({
-                  ...prevClasses,
-                  [currClass]: true,
+            console.log(properties);
+            for (const property of properties) {
+              if (property.name === "class") {
+                const classes = property.value.split(" ");
+                //get list of classes of DOM node
+                for (const currClass of classes) {
+                  injectCSS("." + currClass);
+                  setChosenClasses((prevClasses) => ({
+                    ...prevClasses,
+                    [currClass]: true,
+                  }));
+                } //inject for the id if it's not a class
+              } else if (property.name === "id") {
+                const currId = property.value;
+                injectCSS("#" + currId);
+                setChosenIDs((prevIDs) => ({
+                  ...prevIDs,
+                  currId: true,
                 }));
-              } //inject for the id if it's not a class
-            } else if (property.name === "id") {
-              const currId = property.value;
-              injectCSS("#" + currId);
-              setChosenIDs((prevIDs) => ({
-                ...prevIDs,
-                currId: true,
-              }));
+              }
             }
           }
-        }
-      );
-    }
-    //alert(params);
-  }
+        );
+      }
+      //alert(params);
+    },
+    [from, to]
+  );
   //when component mounts, attach debugger to current tab
   useEffect(() => {
     async function debugAttach() {
+      const tab = await getCurrentTab();
+
+      if (!tab && tab !== 0) {
+        console.log("No Tab!");
+        return;
+      }
+      const debugee = {
+        tabId: tab.id,
+      };
+      chrome.debugger.onEvent.removeListener(debugListener);
+      chrome.debugger.detach(debugee);
       await attachDebugger();
-      chrome.tabs.onActivated.addListener(async (activeInfo) => {
-        //detach with current active info
-        chrome.debugger.onEvent.removeListener(debugListener);
-        //await resetCSS();
-        chrome.debugger.detach({
-          tabId: activeInfo.tabId,
-        });
-        attachDebugger();
-        console.log("Tab changed!");
-      });
+      chrome.tabs.onActivated.addListener(tabListener);
     }
     debugAttach();
-  }, []);
+    return () => {
+      async function destructor() {
+        const tab = await getCurrentTab();
+        if (!tab.id && tab.id !== 0) return;
+        const debugee = {
+          tabId: tab.id,
+        };
+        chrome.debugger.onEvent.removeListener(debugListener);
+        chrome.tabs.onActivated.removeListener(tabListener);
+      }
+      destructor();
+    };
+  }, [from, to]);
+
+  async function tabListener(activeInfo: chrome.tabs.TabActiveInfo) {
+    //detach with current active info
+    chrome.debugger.onEvent.removeListener(debugListener);
+    //await resetCSS();
+    chrome.debugger.detach({
+      tabId: activeInfo.tabId,
+    });
+    attachDebugger();
+    console.log("Tab changed!");
+  }
 
   //write unmount code
 
@@ -163,6 +191,7 @@ export function DevToolProvider(props: DevToolProps) {
       const debugee = {
         tabId: tab.id,
       };
+      chrome.debugger.detach(debugee);
       chrome.debugger.attach(debugee, "1.3");
       console.log("Attached!");
       chrome.debugger.onEvent.addListener(debugListener);
@@ -298,6 +327,8 @@ export function DevToolProvider(props: DevToolProps) {
 
   const injectCSS = useCallback(
     async (chosenSelector: string) => {
+      console.log("from is: " + from);
+      console.log("to is: " + to);
       injectCSSFunc(chosenSelector, from, to);
     },
     [from, to]
