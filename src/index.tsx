@@ -7,7 +7,7 @@ import App from "./App";
 
 ReactDOM.render(
   <React.StrictMode>
-    <CanvasComponent width={"500px"} height={"700px"} />
+    <App />
   </React.StrictMode>,
   document.getElementById("root")
 );

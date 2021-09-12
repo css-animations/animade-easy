@@ -9,16 +9,39 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 
+interface RowProps {
+  index: number;
+  propertyName: string;
+}
+
+
+function Row(props: RowProps) {
+  const [open, setOpen] = useState(false);
+
+  return (
+  <TableRow>
+    <TableCell align="left" style={{border: 1, borderStyle: 'solid', borderLeft: 'none', borderColor: '#599E40'}}>
+      <Property key={props.index} name={props.propertyName} />
+    </TableCell>
+    <TableCell align="center" style={{border: 1, borderStyle: 'solid', borderRight: 'none', borderColor: '#599E40'}}>
+      Keyframes
+    </TableCell>
+  </TableRow>);
+}
+
 function AnimatedProperties() {
   const [propertiesArray, setPropertiesArray] = useState<string[]>([]);
   return (
     <div>
       <h3>Animated Properties</h3>
-      <div>
-        {propertiesArray.map((i, index) => {
-          return <Property key={index} name={i} />;
-        })}
-      </div>
+      <TableContainer>
+        <TableBody>
+          {propertiesArray.map((propertyName, index) => {
+          return (
+            <Row index={index} propertyName={propertyName} />
+          );})}
+        </TableBody>
+      </TableContainer>
       <NewChild
         type="property"
         children={propertiesArray}

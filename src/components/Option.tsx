@@ -3,6 +3,8 @@ import React, { useState } from "react";
 interface OptionProps {
   name: string;
   value: string;
+  // possibleValues: string[];
+  // setValue: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 function Option(props: OptionProps) {
