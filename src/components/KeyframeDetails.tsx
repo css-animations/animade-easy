@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import NumOption from "./NumOption";
 
+//Add interface so that keyframe details will reflect the selected keyframe
+
 function KeyframeDetails() {
   //   const [time, setTime] = useState(10);
   //   const [propertyValue, setPropertyValue] = useState(12);
