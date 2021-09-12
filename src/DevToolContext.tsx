@@ -149,15 +149,16 @@ export function DevToolProvider(props: DevToolProps) {
                 }));
               }
             }
+            chrome.debugger.sendCommand(debugee, "Overlay.setInspectMode", {
+              mode: "none",
+              highlightConfig: {
+                showInfo: false,
+              },
+            });
           },
         );
       }
-      chrome.debugger.sendCommand(debugee, "Overlay.setInspectMode", {
-        mode: "none",
-        highlightConfig: {
-          showInfo: false,
-        },
-      });
+
       //alert(params);
     },
     [from, to],
