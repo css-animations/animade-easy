@@ -30,7 +30,7 @@ export const ScaleTypeAnimation: AnimationTypeDatum = {
 
 export const RotateTypeAnimation: AnimationTypeDatum = {
   animationType: ANIMATABLE_PROPERTIES.rotate,
-  formatFunction: (rawData: string) => `transform: rotate(${rawData}deg)`,
+  formatFunction: (rawData: string) => `transform: rotate(${rawData}deg);`,
 };
 
 interface propertyType {
@@ -65,11 +65,11 @@ interface DevToolContextType {
     animationObj: AnimationPropertyType,
     percentageList: number[],
   ) => void;
-  injectCSSAnimationClasses: (
-    animationClasses: animationPropertyType[],
-    classNames: string[],
-  ) => void;
-  injectedAnimations: string[];
+  // injectCSSAnimationClasses: (
+  //   animationClasses: animationPropertyType[],
+  //   classNames: string[],
+  // ) => void;
+  injectedAnimations: AnimationPropertyType[];
 }
 
 const defaultDevContext: DevToolContextType = {
@@ -89,10 +89,10 @@ const defaultDevContext: DevToolContextType = {
     animationObj: AnimationPropertyType,
     percentageList: number[],
   ) => {},
-  injectCSSAnimationClasses: (
-    animationClasses: animationPropertyType[],
-    classNames: string[],
-  ) => {},
+  // injectCSSAnimationClasses: (
+  //   animationClasses: animationPropertyType[],
+  //   classNames: string[],
+  // ) => {},
   injectedAnimations: [],
 };
 
@@ -112,7 +112,9 @@ export function DevToolProvider(props: DevToolProps) {
   const [chosenClasses, setChosenClasses] = useState({});
   const [chosenIDs, setChosenIDs] = useState({});
   //TODO: make this typed
-  const [injectedAnimations, setInjectedAnimations] = useState<string[]>([]);
+  const [injectedAnimations, setInjectedAnimations] = useState<
+    AnimationPropertyType[]
+  >([]);
 
   //function that listens
   const debugListener = useCallback(
@@ -334,7 +336,7 @@ export function DevToolProvider(props: DevToolProps) {
       ${percentage}% {`;
       for (const property of animationObj.animationTypes) {
         newCSS += `
-        ${property.formatFunction("75")};`;
+        ${property.formatFunction("75")}`;
       }
     }
     newCSS += `
@@ -349,49 +351,50 @@ export function DevToolProvider(props: DevToolProps) {
       setInjectedStyles((prevStyles) => [...prevStyles, newInjection]);
       setInjectedAnimations((prevAnimations) => [
         ...prevAnimations,
-        animationObj.animationName,
+        animationObj,
       ]);
       console.log("Added animation!");
     });
   }
 
-  async function injectCSSAnimationClasses(
-    animationClasses: animationPropertyType[],
-    classNames: string[],
-  ) {
-    const ANIMATION_LENGTH = 5;
-    const tab = await getCurrentTab();
-    if (!tab.id && tab.id !== 0) return;
-    const debugee = {
-      tabId: tab.id,
-    };
+  // async function injectCSSAnimationClasses(
+  //   animationClasses: animationPropertyType[],
+  //   classNames: string[],
+  // ) {
+  //   const ANIMATION_LENGTH = 5;
+  //   const tab = await getCurrentTab();
+  //   if (!tab.id && tab.id !== 0) return;
+  //   const debugee = {
+  //     tabId: tab.id,
+  //   };
 
-    let newCSS = ``;
-    //TODO: Grab this from state somewhere idk
-    //const CLASS_NAMES = ["jeff", "bezos", "zuck", "gates"];
-    for (const name of classNames) {
-      newCSS += `
-      ${name} {
-        `;
-      for (const propertyObj of animationClasses) {
-        newCSS += `
-        animation: ${propertyObj.animationName} infinite ${propertyObj.duration};
-        `;
-      }
-      newCSS += `
-    }`;
-    }
+  //   let newCSS = ``;
+  //   //TODO: Grab this from state somewhere idk
+  //   //const CLASS_NAMES = ["jeff", "bezos", "zuck", "gates"];
+  //   for (const name of classNames) {
+  //     newCSS += `
+  //     ${name} {
+  //       `;
+  //     for (const propertyObj of animationClasses) {
+  //       newCSS += `
+  //       animation: ${propertyObj.animationName} infinite ${propertyObj.duration};
+  //       `;
+  //     }
+  //     newCSS += `
+  //   }`;
+  //   }
 
-    console.log(newCSS);
-    const newInjection: chrome.scripting.CSSInjection = {
-      css: newCSS,
-      target: debugee,
-    };
-    chrome.scripting.insertCSS(newInjection, () => {
-      setInjectedStyles((prevStyles) => [...prevStyles, newInjection]);
-      console.log("Added animation to classes!");
-    });
-  }
+  //   console.log(newCSS);
+
+  //   const newInjection: chrome.scripting.CSSInjection = {
+  //     css: newCSS,
+  //     target: debugee,
+  //   };
+  //   chrome.scripting.insertCSS(newInjection, () => {
+  //     setInjectedStyles((prevStyles) => [...prevStyles, newInjection]);
+  //     console.log("Added animation to classes!");
+  //   });
+  // }
 
   async function resetCSS() {
     //const head = window.document.getElementsByTagName("HEAD")[0];
@@ -455,7 +458,7 @@ export function DevToolProvider(props: DevToolProps) {
         chosenIDs,
         setChosenClasses,
         injectCSSAnimation,
-        injectCSSAnimationClasses,
+        //injectCSSAnimationClasses,
         injectedAnimations,
       }}
     >

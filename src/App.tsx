@@ -29,14 +29,14 @@ const TEST_TYPE: AnimationPropertyType = {
   duration: "infinite",
 };
 
-const TEST_STUFF: animationPropertyType[] = [
-  {
-    animationName: "fun",
-    duration: "4s",
-    value: "yo",
-    direction: "up",
-  },
-];
+// const TEST_STUFF: animationPropertyType[] = [
+//   {
+//     animationName: "fun",
+//     duration: "4s",
+//     value: "yo",
+//     direction: "up",
+//   },
+// ];
 
 export default function AppWrapper() {
   return (
@@ -58,7 +58,7 @@ function AppContent() {
     chosenIDs,
     setChosenClasses,
     injectCSSAnimation,
-    injectCSSAnimationClasses,
+    //injectCSSAnimationClasses,
     injectedAnimations,
   } = useContext(DevToolContext);
   const [propertyData, dispatchPropertyData] = useReducer(
@@ -153,7 +153,8 @@ function AppContent() {
         <div>Chosen Classes: {chosenClassContainers}</div>
         <button
           onClick={() =>
-            injectCSSAnimationClasses(TEST_STUFF, chosenClassNames)
+            //injectCSSAnimationClasses(TEST_STUFF, chosenClassNames)
+            console.log("yo")
           }
         >
           Apply Animation!
@@ -164,10 +165,13 @@ function AppContent() {
           value={classInput}
           onChange={(event) => setClassInput(event.target.value)}
         />
-        <button onClick={() => injectCSSAnimation(classInput, TEST_DATA)}>
+        <button onClick={() => injectCSSAnimation(TEST_TYPE, TEST_DATA)}>
           Inject Animation!
         </button>
-        <div>Generated Animations: {injectedAnimations}</div>
+        <div>
+          Generated Animations:{" "}
+          {injectedAnimations.map((sect) => sect.animationName)}
+        </div>
       </header>
     </div>
   );
