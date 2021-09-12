@@ -107,6 +107,7 @@ export function BezierComponent(props: BezierInterface) {
     return <div>You must make at least one keyframe.</div>;
   return (
     <InternalBezierComponent
+      {...props}
       selectedProperty={
         propertyData.properties[propertyData.propertyMetadata.selectedProperty] as Property
       }
