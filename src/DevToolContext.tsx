@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import * as devtoolsProtocol from "devtools-protocol";
 async function getCurrentTab() {
   let queryOptions = { active: true, currentWindow: true };
@@ -34,6 +34,12 @@ interface DevToolContextType {
   attachInspect: () => void;
   detachInspect: () => void;
   highlightElement: (chosenSelector: string) => void;
+  from: number;
+  setFrom: React.Dispatch<React.SetStateAction<number>>;
+  to: number;
+  setTo: React.Dispatch<React.SetStateAction<number>>;
+  chosenClasses: {};
+  chosenIDs: {};
 }
 
 const defaultDevContext: DevToolContextType = {
@@ -44,6 +50,12 @@ const defaultDevContext: DevToolContextType = {
   attachInspect: () => {},
   detachInspect: () => {},
   highlightElement: () => {},
+  from: 0,
+  setFrom: () => {},
+  to: 100,
+  setTo: () => {},
+  chosenClasses: {},
+  chosenIDs: {},
 };
 
 export const DevToolContext = React.createContext(defaultDevContext);
@@ -56,6 +68,11 @@ export function DevToolProvider(props: DevToolProps) {
   const [injectedStyles, setInjectedStyles] = useState<
     chrome.scripting.CSSInjection[]
   >([]);
+  const [from, setFrom] = useState(0);
+  const [to, setTo] = useState(100);
+  //sets of chosen classes/IDs
+  const [chosenClasses, setChosenClasses] = useState({});
+  const [chosenIDs, setChosenIDs] = useState({});
 
   //function that listens
   async function debugListener(source: any, method: any, params: any) {
@@ -100,10 +117,18 @@ export function DevToolProvider(props: DevToolProps) {
               //get list of classes of DOM node
               for (const currClass of classes) {
                 injectCSS("." + currClass);
+                setChosenClasses((prevClasses) => ({
+                  ...prevClasses,
+                  [currClass]: true,
+                }));
               } //inject for the id if it's not a class
             } else if (property.name === "id") {
               const currId = property.value;
               injectCSS("#" + currId);
+              setChosenIDs((prevIDs) => ({
+                ...prevIDs,
+                currId: true,
+              }));
             }
           }
         }
@@ -270,21 +295,34 @@ export function DevToolProvider(props: DevToolProps) {
   }
 
   //function to injectCSS
-  async function injectCSS(chosenSelector: string) {
+
+  const injectCSS = useCallback(
+    async (chosenSelector: string) => {
+      injectCSSFunc(chosenSelector, from, to);
+    },
+    [from, to]
+  );
+  async function injectCSSFunc(
+    chosenSelector: string,
+    from: number,
+    to: number
+  ) {
+    console.log("from is: " + from);
+    console.log("to is: " + to);
     //const head = window.document.getElementsByTagName("HEAD")[0];
     //const newStyle = document.createElement("style");
     const tab = await getCurrentTab();
     const newCSS = `
     @keyframes spinny {
       from {
-        transform: rotate(0deg);
+        transform: rotate(${(360 / 100) * from}deg);
       }
       to {
-        transform: rotate(360deg);
+        transform: rotate(${(360 / 100) * to}deg);
       }
     }
     ${chosenSelector} {
-      animation: spinny infinite 20s linear;
+      animation: spinny infinite 2s linear;
     }
     `;
 
@@ -360,6 +398,12 @@ export function DevToolProvider(props: DevToolProps) {
         attachInspect,
         detachInspect,
         highlightElement,
+        from,
+        setFrom,
+        to,
+        setTo,
+        chosenClasses,
+        chosenIDs,
       }}
     >
       {props.children}
