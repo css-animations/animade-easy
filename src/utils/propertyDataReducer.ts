@@ -14,10 +14,22 @@ export enum PropertyReducerActionTypes {
   SET_SELECTED_PROPERTY = "SET_SELECTED_PROPERTY",
   CREATE_NEW_KEYFRAME = "CREATE_NEW_KEYFRAME",
   MODIFY_ANIMATION_OPTIONS = "MODIFY_ANIMATION_OPTIONS",
+  SET_DEFAULT_CURVE = "SET_DEFAULT_CURVE"
 }
 
 interface GeneralPropertyReducerActions {
   timelineId: ANIMATABLE_PROPERTIES;
+}
+
+interface SET_CURVE_POINT_BY_INDEX_PERCENT
+  extends GeneralPropertyReducerActions {
+  type: PropertyReducerActionTypes.SET_CURVE_POINT_BY_INDEX_PERCENT;
+  data: {
+    percentage: Point;
+    index: number;
+    bezierWidth: number;
+    bezierHeight: number;
+  };
 }
 
 interface SET_CURVE_BY_INDEX_ACTION extends GeneralPropertyReducerActions {
@@ -38,27 +50,24 @@ interface COMPUTE_STARTING_BEZIER_POINTS extends GeneralPropertyReducerActions {
 interface CREATE_NEW_PROPERTY extends GeneralPropertyReducerActions {
   type: PropertyReducerActionTypes.CREATE_NEW_PROPERTY;
   data: {
+    property: ANIMATABLE_PROPERTIES;
     animationOptions?: AnimationOptions;
-    _keyframes: AbsoluteBezierPoint[];
+    points: Point[];
   };
 }
 
-interface SET_SELECTED_PROPERTY extends GeneralPropertyReducerActions {
+interface SET_SELECTED_PROPERTY {
   type: PropertyReducerActionTypes.SET_SELECTED_PROPERTY;
   data: {
-    property: ANIMATABLE_PROPERTIES
+    property: ANIMATABLE_PROPERTIES | undefined
   };
 }
 
-interface SET_CURVE_POINT_BY_INDEX_PERCENT
-  extends GeneralPropertyReducerActions {
-  type: PropertyReducerActionTypes.SET_CURVE_POINT_BY_INDEX_PERCENT;
+interface CREATE_NEW_KEYFRAME  extends GeneralPropertyReducerActions {
+  type: PropertyReducerActionTypes.CREATE_NEW_KEYFRAME,
   data: {
-    percentage: Point;
-    index: number;
-    bezierWidth: number;
-    bezierHeight: number;
-  };
+    horizontalPosition: number
+  }
 }
 
 export type PropertyReducerActions =
@@ -67,6 +76,7 @@ export type PropertyReducerActions =
   | COMPUTE_STARTING_BEZIER_POINTS
   | CREATE_NEW_PROPERTY
   | SET_SELECTED_PROPERTY;
+  // | CREATE_NEW_KEYFRAME;
 
 export function propertyReducer(
   state: PropertyData,
@@ -77,31 +87,43 @@ export function propertyReducer(
       if (action.timelineId in state.properties)
         return {
           ...state,
-          [action.timelineId]: {
-            ...state.properties[action.timelineId],
-            _keyframes: setCurvePointByIndex(
-              action.data.heldIndex,
-              action.data.newPoint,
-              // @ts-ignore
-              state.properties[action.timelineId]._keyframes,
-            ),
-          },
+          properties: {
+            ...state.properties,
+            [action.timelineId]: {
+              ...state.properties[action.timelineId],
+              _keyframes: setCurvePointByIndex(
+                action.data.heldIndex,
+                action.data.newPoint,
+                // @ts-ignore
+                state.properties[action.timelineId]._keyframes,
+              ),
+            },
+          }
         };
       return state;
     case PropertyReducerActionTypes.COMPUTE_STARTING_BEZIER_POINTS:
       return {
         ...state,
-        [action.timelineId]: {
-          ...state.properties[action.timelineId],
-          _keyframes: computeStartingBezierPoints(action.data.points),
-        },
+        properties: {
+          ...state.properties,
+          [action.timelineId]: {
+            ...state.properties[action.timelineId],
+            _keyframes: computeStartingBezierPoints(action.data.points),
+          },
+        }
       };
     case PropertyReducerActionTypes.CREATE_NEW_PROPERTY:
       return {
         ...state,
-        [action.timelineId]: {
-          _keyframes: action.data._keyframes,
-          animationOptions: action.data.animationOptions,
+        properties: {
+          ...state.properties,
+          [action.timelineId]: {
+            _keyframes: computeStartingBezierPoints(action.data.points),
+            animationOptions: action.data.animationOptions,
+          },
+        },
+        propertyMetadata: {
+          selectedProperty: action.data.property,
         },
       };
     case PropertyReducerActionTypes.SET_CURVE_POINT_BY_INDEX_PERCENT:
@@ -112,20 +134,30 @@ export function propertyReducer(
         };
         return {
           ...state,
-          [action.timelineId]: {
-            ...state.properties[action.timelineId],
-            _keyframes: setCurvePointByIndex(
-              { index: action.data.index, field: "pt" },
-              newPoint,
-              // @ts-ignore
-              state.properties[action.timelineId]._keyframes,
-            ),
-          },
+          properties: {
+            ...state.properties,
+            [action.timelineId]: {
+              ...state.properties[action.timelineId],
+              _keyframes: setCurvePointByIndex(
+                { index: action.data.index, field: "pt" },
+                newPoint,
+                // @ts-ignore
+                state.properties[action.timelineId]._keyframes,
+              ),
+            },
+          }
         };
       }
       return state;
-    default:
-      throw new Error("Bad action thrown");
+    case PropertyReducerActionTypes.SET_SELECTED_PROPERTY:
+      return {
+        ...state,
+        propertyMetadata: {
+          selectedProperty: action.data.property,
+        },
+      };
+    // case PropertyReducerActionTypes.CREATE_NEW_KEYFRAME:
+
   }
 }
 
