@@ -56,13 +56,13 @@ export function AnimationPath() {
           ...propertyData.properties[propertyDatumKey].animationOptions,
           duration: "5s",
           animationName: "name",
-          animationTypes: ScaleTypeAnimation,
+          animationTypes: [ScaleTypeAnimation],
         };
         animationClasses.push(animationClass);
         injectCSSAnimation(
           animationClass,
           // @ts-ignore
-          CreateLUT(propertyData.properties[propertyDatumKey]._keyframes).map((value) => value.y),
+          CreateLUT(propertyData.properties[propertyDatumKey]._keyframes).map((value) => -(value.y / 300) + 1),
         );
       }
       const chosenClassNames =

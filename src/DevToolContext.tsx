@@ -357,6 +357,7 @@ export function DevToolProvider(props: DevToolProps) {
       newCSS += `
       ${selector} {
         `;
+      console.log({animationProperty})
       for (const propertyObj of animationProperty) {
         newCSS += `
         animation: ${propertyObj.animationName} ${propertyObj.duration} linear ${
