@@ -41,7 +41,11 @@ interface DevToolContextType {
   chosenClasses: {};
   setChosenClasses: React.Dispatch<React.SetStateAction<{}>>;
   chosenIDs: {};
-  injectCSSAnimation: (animationObj: AnimationPropertyType, percentageList: number[], powerList: number[]) => void;
+  injectCSSAnimation: (
+    animationObj: AnimationPropertyType,
+    percentageList: number[],
+    powerList: number[],
+  ) => void;
   injectedAnimations: AnimationPropertyType[];
   injectCSSAnimationClasses: (
     animationClasses: AnimationPropertyType[],
@@ -63,7 +67,11 @@ const defaultDevContext: DevToolContextType = {
   chosenClasses: {},
   setChosenClasses: () => {},
   chosenIDs: {},
-  injectCSSAnimation: (animationObj: AnimationPropertyType, percentageList: number[], powerList: number[]) => {},
+  injectCSSAnimation: (
+    animationObj: AnimationPropertyType,
+    percentageList: number[],
+    powerList: number[],
+  ) => {},
   injectCSSAnimationClasses: (
     animationClasses: AnimationPropertyType[],
     classNames: string[],
@@ -290,7 +298,11 @@ export function DevToolProvider(props: DevToolProps) {
   }
 
   //function to inject CSS Animation
-  async function injectCSSAnimation(animationObj: AnimationPropertyType, percentageList: number[], powerList: number[]) {
+  async function injectCSSAnimation(
+    animationObj: AnimationPropertyType,
+    percentageList: number[],
+    powerList: number[],
+  ) {
     const tab = await getCurrentTab();
     if (!tab.id && tab.id !== 0) return;
     const debugee = {
@@ -307,16 +319,20 @@ export function DevToolProvider(props: DevToolProps) {
       //CHOOSE FROM POINTS SOMEHOW BY INCREMENTING I HERE
     }
     let newCSS = `@keyframes ${animationObj.animationName} {`;
-    for (let i = 0; i < newAnimationPercentages.length; i++){
+    for (let i = 0; i < newAnimationPercentages.length; i++) {
       const percentage = newAnimationPercentages[i];
       const power = powerList[i];
       newCSS += `
       ${percentage}% {`;
+      newCSS += `
+        transform: `;
       for (const property of animationObj.animationTypes) {
         newCSS += `
         ${property.formatFunction(power)}`;
+        newCSS += " ";
       }
-      newCSS += `
+      newCSS = newCSS.substr(0, newCSS.length - 1);
+      newCSS += `;
     }
     `;
     }
@@ -359,7 +375,7 @@ export function DevToolProvider(props: DevToolProps) {
       newCSS += `
       ${selector} {
         `;
-      console.log({animationProperty})
+      console.log({ animationProperty });
       for (const propertyObj of animationProperty) {
         newCSS += `
         animation: ${propertyObj.animationName} ${propertyObj.duration} linear ${

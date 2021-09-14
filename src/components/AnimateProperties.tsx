@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Property from "./Property";
 import NewChild, { NewChildPropTypes } from "./NewChild";
+import { PropertyDataContext } from "./PropertyDataContext";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -17,10 +18,7 @@ interface RowProps {
 function Row(props: RowProps) {
   return (
     <TableRow>
-      <TableCell
-        align="left"
-        className = {"TableRow"}
-      >
+      <TableCell align="left" className={"TableRow"}>
         <Property key={props.index} name={props.propertyName} />
       </TableCell>
     </TableRow>
@@ -28,11 +26,13 @@ function Row(props: RowProps) {
 }
 
 export function AnimateProperties() {
+  const { propertyData } = useContext(PropertyDataContext);
   const [propertiesArray, setPropertiesArray] = useState<string[]>([]);
   return (
-    <div className = "APSWrapper">
+    <div className="APSWrapper">
+      {propertyData.propertyMetadata.selectedProperty}
       <h2>Animated Properties</h2>
-      <TableContainer className = "TableContainer">
+      <TableContainer className="TableContainer">
         <TableBody>
           {propertiesArray.map((propertyName, index) => {
             return <Row index={index} propertyName={propertyName} />;
@@ -47,4 +47,3 @@ export function AnimateProperties() {
     </div>
   );
 }
-

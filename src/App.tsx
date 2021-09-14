@@ -44,17 +44,17 @@ function AppContent() {
     dispatchPropertyData({
       type: PropertyReducerActionTypes.CREATE_NEW_PROPERTY,
       data: {
-        property: ANIMATABLE_PROPERTIES.width,
+        property: ANIMATABLE_PROPERTIES.rotate,
         animationOptions: {},
         points: points,
       },
-      timelineId: ANIMATABLE_PROPERTIES.width,
+      timelineId: ANIMATABLE_PROPERTIES.rotate,
     });
 
     dispatchPropertyData({
       type: PropertyReducerActionTypes.COMPUTE_STARTING_BEZIER_POINTS,
       data: { points: points },
-      timelineId: ANIMATABLE_PROPERTIES.width,
+      timelineId: ANIMATABLE_PROPERTIES.rotate,
     });
   }, []);
 
@@ -62,8 +62,8 @@ function AppContent() {
     <span
       style={{
         margin: "5px",
-        fontSize: '20px',
-        cursor: 'pointer'
+        fontSize: "20px",
+        cursor: "pointer",
       }}
       onClick={() => {
         setChosenClasses((prevClasses) => {
@@ -80,7 +80,9 @@ function AppContent() {
     <div className="App">
       <header className="App-header">
         <div className="buttonWrapper">
-          <button className="AttachAnimation" onClick={() => attachInspect()}>Attach Animation</button>
+          <button className="AttachAnimation" onClick={() => attachInspect()}>
+            Attach Animation
+          </button>
         </div>
         <AnimateProperties />
         <AnimationPath />

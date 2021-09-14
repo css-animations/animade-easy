@@ -12,7 +12,11 @@ import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import { DevToolContext } from "../DevToolContext";
 import { PropertyDataContext } from "./PropertyDataContext";
 import { CreateLUT } from "../utils/bezier";
-import { AnimationPropertyType, ScaleTypeAnimation } from "../types/devToolContext";
+import {
+  AnimationPropertyType,
+  RotateTypeAnimation,
+  ScaleTypeAnimation,
+} from "../types/devToolContext";
 import { ANIMATABLE_PROPERTIES } from "./NewChild";
 import { keys } from "@material-ui/core/styles/createBreakpoints";
 
@@ -56,13 +60,13 @@ export function AnimationPath() {
           ...propertyData.properties[propertyDatumKey].animationOptions,
           duration: "5s",
           animationName: "name",
-          animationTypes: [ScaleTypeAnimation],
+          animationTypes: [RotateTypeAnimation, ScaleTypeAnimation],
         };
         animationClasses.push(animationClass);
         injectCSSAnimation(
           animationClass,
           // @ts-ignore
-          lut.map((value) => (value.t)),
+          lut.map((value) => value.t),
           lut.map((value) => -(value.y / 300) + 1),
         );
       }
